@@ -1,49 +1,57 @@
 <template>
-	<view class="content">
-		<image class="logo" src="/static/logo.png"></image>
-		<view>
-			<text class="title">{{title}}</text>
-		</view>
-	</view>
+  <div class="index">
+    <index-nav-bar></index-nav-bar>
+
+    <div class="home-content">
+      <index-friend-request></index-friend-request>
+
+      <index-friend-list :friends="friends"></index-friend-list>
+    </div>
+  </div>
 </template>
 
 <script>
-	export default {
-		data() {
-			return {
-				title: 'Hello'
-			}
-		},
-		onLoad() {
+import IndexNavBar from "./childcomponents/IndexNavBar";
+import IndexFriendRequest from "./childcomponents/IndexFriendRequest";
+import IndexFriendList from "./childcomponents/IndexFriendList";
 
-		},
-		methods: {
+import fakedata from "../../common/data/fakedata";
 
-		}
-	}
+export default {
+  name: "Index",
+  components: {
+    IndexNavBar,
+    IndexFriendRequest,
+    IndexFriendList
+  },
+  data() {
+    return {
+      friends: []
+    };
+  },
+  onLoad() {
+    this.getFriends();
+  },
+  methods: {
+    getFriends() {
+      this.friends = fakedata.friends();
+      for (let item of this.friends) {
+        item.imgUrl = "../../static/img/user/" + item.imgUrl;
+      }
+    }
+  }
+};
 </script>
 
 <style>
-	.content {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		justify-content: center;
-	}
+.index {
+  display: flex;
+  justify-content: center;
+  align-content: center;
+}
 
-	.logo {
-		height: 200rpx;
-		width: 200rpx;
-		margin: 200rpx auto 50rpx auto;
-	}
-
-	.text-area {
-		display: flex;
-		justify-content: center;
-	}
-
-	.title {
-		font-size: 36rpx;
-		color: #8f8f94;
-	}
+.home-content {
+  padding: 108rpx 0;
+  width: 100%;
+}
 </style>
