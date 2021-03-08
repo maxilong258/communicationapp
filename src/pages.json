@@ -3,7 +3,24 @@
     {
       "path": "pages/index/Index",
       "style": {
-        "navigationBarTitleText": "uni-app",
+        "navigationStyle": "custom"
+      }
+    },
+    {
+      "path": "pages/signin/Signin",
+      "style": {
+        "navigationStyle": "custom"
+      }
+    },
+    {
+      "path": "pages/signup/Signup",
+      "style": {
+        "navigationStyle": "custom"
+      }
+    },
+    {
+      "path": "pages/search/Search",
+      "style": {
         "navigationStyle": "custom"
       }
     }

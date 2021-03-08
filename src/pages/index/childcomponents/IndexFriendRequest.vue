@@ -41,11 +41,12 @@ export default {
 }
 .friend-list-left .tip {
   position: absolute;
-  min-width: 36rpx;
+  min-width: 24rpx;
   height: 36rpx;
   z-index: 10;
   background-color: #e74c3c;
-  border-radius: 50%;
+  border-radius: 18rpx;
+  padding: 0 6rpx;
   left: 58rpx;
   line-height: 36rpx;
   text-align: center;

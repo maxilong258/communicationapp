@@ -7,7 +7,7 @@
       hover-class="friend-click"
     >
       <div class="friend-list-left">
-        <text class="tip">{{ item.tip }}</text>
+        <text class="tip" v-if="item.tip > 0">{{ item.tip }}</text>
         <image :src="item.imgUrl" mode="scaleToFill" />
       </div>
       <div class="friend-list-right">
@@ -67,11 +67,12 @@ export default {
 }
 .friend-list-left .tip {
   position: absolute;
-  min-width: 36rpx;
+  min-width: 24rpx;
   height: 36rpx;
   z-index: 10;
   background-color: #e74c3c;
-  border-radius: 50%;
+  border-radius: 18rpx;
+  padding: 0 6rpx;
   left: 58rpx;
   line-height: 36rpx;
   text-align: center;

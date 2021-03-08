@@ -29,7 +29,6 @@ export default {
 .index-nav-bar {
   background-color: #ffffff;
   z-index: 999;
-  padding-top: var(--status-bar-height);
 }
 
 .home-nav {

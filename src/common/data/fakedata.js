@@ -68,7 +68,7 @@ export default {
       {
         id: 9,
         imgUrl: '8.png',
-        tip: 999,
+        tip: 0,
         name: '红花',
         time: new Date(),
         message: '明白'
