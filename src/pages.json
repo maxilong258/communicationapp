@@ -23,6 +23,18 @@
       "style": {
         "navigationStyle": "custom"
       }
+    },
+    {
+      "path": "pages/userhome/UserHome",
+      "style": {
+        "navigationStyle": "custom"
+      }
+    },
+    {
+      "path": "pages/userdetail/UserDetail",
+      "style": {
+        "navigationStyle": "custom"
+      }
     }
   ],
   "globalStyle": {

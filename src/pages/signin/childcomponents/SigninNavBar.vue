@@ -52,7 +52,7 @@ export default {
   position: absolute;
   height: 60rpx;
   width: 60rpx;
-  top: 18rpx;
+  top: 17rpx;
   left: 20rpx;
 }
 .nav-bar-right {

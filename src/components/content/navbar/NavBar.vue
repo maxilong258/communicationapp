@@ -15,15 +15,15 @@ export default {
 <style scoped>
 .nav-bar {
   display: flex;
-  height: 44px;
-  line-height: 44px;
+  height: 88rpx;
+  line-height: 88rpx;
 }
 
 .left,
 .right {
-  width: 100px;
-  height: 44px;
-  line-height: 44px;
+  width: 200rpx;
+  height: 88rpx;
+  line-height: 88rpx;
 }
 
 .center {

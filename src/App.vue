@@ -21,6 +21,6 @@ html,
 body {
   margin: 0;
   padding: 0;
-  font-family: Helvetica;
+  font-family: 黑体 Helvetica;
 }
 </style>

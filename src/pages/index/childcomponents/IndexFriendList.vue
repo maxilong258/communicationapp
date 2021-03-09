@@ -63,17 +63,17 @@ export default {
 .friend-list-left image {
   width: 96rpx;
   height: 96rpx;
-  border-radius: 50%;
+  border-radius: 10%;
 }
 .friend-list-left .tip {
   position: absolute;
   min-width: 24rpx;
   height: 36rpx;
   z-index: 10;
-  background-color: #e74c3c;
+  background-color: #e67e22;
   border-radius: 18rpx;
   padding: 0 6rpx;
-  left: 58rpx;
+  left: 62rpx;
   line-height: 36rpx;
   text-align: center;
   color: #bdc3c7;

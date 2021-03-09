@@ -2,13 +2,17 @@
   <div class="index-nav-bar">
     <nav-bar class="home-nav">
       <div slot="left" class="nav-bar-left">
-        <image src="~static/img/user/yyyeee.png" mode="aspectFill"></image>
+        <navigator url="/pages/userhome/UserHome?id=aaa" hover-class="none">
+          <image src="~static/img/user/yyyeee.png" mode="aspectFill"></image>
+        </navigator>
       </div>
       <div slot="center" class="nav-bar-center">
         <image src="~static/img/main/logooo.png" mode="scaleToFill" />
       </div>
       <div slot="right" class="nav-bar-right">
-        <div class="search"><div class="iconfont icon-search"></div></div>
+        <div class="search" @click="toSearchPage">
+          <div class="iconfont icon-search"></div>
+        </div>
         <div class="add"><div class="iconfont icon-Add"></div></div>
       </div>
     </nav-bar>
@@ -21,6 +25,11 @@ export default {
   name: "IndexNavBar",
   components: {
     NavBar
+  },
+  methods: {
+    toSearchPage() {
+      uni.navigateTo({ url: '/pages/search/Search' })
+    }
   }
 };
 </script>
@@ -42,8 +51,12 @@ export default {
   line-height: 88rpx;
 }
 
+.nav-bar-left {
+  height: 88rpx;
+}
+
 .nav-bar-left image {
-  border-radius: 50%;
+  border-radius: 10%;
   height: 60rpx;
   width: 60rpx;
   margin: 18rpx 39rpx;
@@ -51,7 +64,7 @@ export default {
 .nav-bar-center image {
   padding-top: 20rpx;
   height: 60rpx;
-  width: 240rpx;
+  width: 288rpx;
 }
 .nav-bar-right {
   display: flex;
