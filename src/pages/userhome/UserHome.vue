@@ -118,7 +118,7 @@ export default {
       } else {
         animation.bottom(-this.addHeight).step()
         animation1.left(0).step()
-        animation1.width(200).height(200).step()
+        animation1.width().height().step()
         animation2.opacity(1).step()
         animation3.backgroundColor('rgba(241, 196, 15, 0)').step()
       }

@@ -38,5 +38,17 @@ export default {
     }
 
     return MY + '/' + MM + '/' + MD + ' ' + MH + ':' + MMin
+  },
+  //处理聊天页时间间隔
+  spaceTime(old, now) {
+    old = new Date(old)
+    now = new Date(now)
+    var told = old.getTime();
+    var tnow = now.getTime();
+    if (told > (tnow + 1000 * 60 * 5)) {
+      return now
+    } else {
+      return ''
+    }
   }
 }

@@ -133,5 +133,130 @@ export default {
       }
     ]
     return friend
+  },
+  fmessage() {
+    const msgs = [
+      {
+        id: 'a',
+        imgUrl: '5.png',
+        message: 'lofi/jazz hiphop chillhop和一些爵士纯音都有',
+        types: 0,
+        time: new Date() - 1000,
+        tip: 0
+      },
+      {
+        id: 'a',
+        imgUrl: '5.png',
+        message: '不要为自己设置不可能完成的任务',
+        types: 0,
+        time: new Date() - 1000 * 16,
+        tip: 1
+      },
+      {
+        id: 'b',
+        imgUrl: '7.png',
+        message: '您的日常工作会变得越来越忙，您会陷入激烈的竞争中，并耗尽自己的能量',
+        types: 0,
+        time: new Date() - 1000 * 60,
+        tip: 2
+      },
+      {
+        id: 'a',
+        imgUrl: '5.png',
+        message: 'hello',
+        types: 0,
+        time: new Date() - 1000 * 60 * 36,
+        tip: 3
+      },
+      {
+        id: 'a',
+        imgUrl: '5.png',
+        message: '古人说，活到老，学到老。终身学习应该是您的座右铭。',
+        types: 0,
+        time: new Date() - 1000 * 60 * 40,
+        tip: 4
+      },
+      {
+        id: 'b',
+        imgUrl: '7.png',
+        message: '12.png',
+        types: 1,
+        time: new Date() - 1000 * 60 * 57,
+        tip: 5
+      },
+      {
+        id: 'a',
+        imgUrl: '5.png',
+        message: '您只有保证了足够的技能储备，才能确保能够得到一份足够满意的工作',
+        types: 0,
+        time: new Date() - 1000 * 60 * 58,
+        tip: 6
+      },
+      {
+        id: 'b',
+        imgUrl: '7.png',
+        message: '3.png',
+        types: 1,
+        time: new Date() - 1000 * 60 * 60,
+        tip: 7
+      },
+      {
+        id: 'b',
+        imgUrl: '7.png',
+        message: '从现在做起，做好当前的工作, 一定要确定你目前所做的工作不是因假设得来的。那样会浪费您很多时间和才华',
+        types: 0,
+        time: new Date() - 1000 * 60 * 58 * 24,
+        tip: 8
+      },
+      {
+        id: 'a',
+        imgUrl: '5.png',
+        message: '超过50%的工作都是通过关系网络获得的',
+        types: 0,
+        time: new Date() - 1000 * 60 * 56 * 24,
+        tip: 9
+      },
+      {
+        id: 'a',
+        imgUrl: '5.png',
+        message: '1.png',
+        types: 1,
+        time: new Date() - 1000 * 60 * 56 * 240,
+        tip: 10
+      },
+      {
+        id: 'b',
+        imgUrl: '7.png',
+        message: '目标',
+        types: 0,
+        time: new Date() - 1000 * 60 * 56 * 241,
+        tip: 11
+      },
+      {
+        id: 'b',
+        imgUrl: '7.png',
+        message: '定期持续对其更新',
+        types: 0,
+        time: new Date() - 1000 * 60 * 56 * 243,
+        tip: 12
+      },
+      {
+        id: 'a',
+        imgUrl: '5.png',
+        message: '不要让繁忙的工作扼杀您的梦想',
+        types: 0,
+        time: new Date() - 1000 * 60 * 60 * 244,
+        tip: 13
+      },
+      {
+        id: 'b',
+        imgUrl: '7.png',
+        message: '假如您有着更高远的目标，请现在就付诸行动吧',
+        types: 0,
+        time: new Date() - 1000 * 60 * 60 * 248,
+        tip: 14
+      }
+    ]
+    return msgs
   }
 }
