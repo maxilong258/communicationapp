@@ -1,7 +1,7 @@
 <template>
   <div class="signin">
     <signin-nav-bar></signin-nav-bar>
-    <div class="logo">
+    <div class="logo" @click="test1">
       <image src="~static/img/main/logooo.png" mode="scaleToFill" />
     </div>
     <div class="main">
@@ -34,6 +34,7 @@
 </template>
 
 <script>
+import {request} from '../../network/request'
 import SigninNavBar from "./childcomponents/SigninNavBar";
 
 export default {
@@ -55,11 +56,34 @@ export default {
       this.password = e.detail.value
       console.log(this.password);
     },
+    test1 () {
+      request({
+        url:'/signup/add',
+        data: {
+          name: '溪水',
+          mail: 'xishui@nl.com',
+          pwd: '666666'
+        },
+        method: 'post'
+      }).then((res) => {
+        console.log(res);
+      })
+    },
     //登录提交
     loginClick () {
-      if (this.username && this.password ) {
-        console.log("可以提交");
-      }
+      request({
+        url:'/friend/updatefriendstate',
+        data: {
+          uid: '6052f757cbe4701ddcd8068d',
+          fid: '604cd1a9fd028c2e58d6b144',
+          // msg: '好友请求3',
+          // type: 'email',
+          // pwd: '666666'
+        },
+        method: 'post'
+      }).then((res) => {
+        console.log(res);
+      })
     }
   }
 };
