@@ -1,8 +1,20 @@
 <template>
   <div class="chat-page">
     <chat-nav></chat-nav>
-    <scroll-view scroll-y="true" :scroll-into-view="scrolltoview" class="chat">
+    <scroll-view
+      scroll-y="true"
+      :scroll-into-view="scrolltoview"
+      class="chat"
+      @scrolltoupper="nextPage"
+    >
       <div class="chat-main" :style="{ paddingBottom: inputh + 'px' }">
+        <div class="loading" :class="{ displaynone: !isloading }">
+          <image
+            src="~static/img/assets/loading.png"
+            class="loading-img"
+            :animation="animationData"
+          />
+        </div>
         <div
           class="chat-ls"
           v-for="(item, index) in msgs"
@@ -26,6 +38,16 @@
             >
               <image :src="item.message" mode="widthFix" class="msg-img" />
             </div>
+            <div class="message" v-if="item.types === 2">
+              <div
+                class="msg-text voice"
+                :style="{ width: item.message.time * 4 + 'px' }"
+                @click="playVoice(item.message.voice)"
+              >
+                <image src="~static/img/assets/voice.png" class="voice-img" />
+                {{ item.message.time + "s" }}
+              </div>
+            </div>
           </div>
           <div class="msg-m msg-right" v-if="item.id == 'b'">
             <image :src="item.imgUrl" class="user-img" />
@@ -40,6 +62,16 @@
               @click="previewImg(item.message)"
             >
               <image :src="item.message" mode="widthFix" class="msg-img" />
+            </div>
+            <div class="message" v-if="item.types === 2">
+              <div
+                class="msg-text voice"
+                :style="{ width: item.message.time * 4 + 'px' }"
+                @click="playVoice(item.message.voice)"
+              >
+                {{ item.message.time + "s" }}
+                <image src="~static/img/assets/voice.png" class="voice-img" />
+              </div>
             </div>
           </div>
         </div>
@@ -68,11 +100,17 @@ export default {
       msgs: [],
       imgmsgs:[],
       scrolltoview: '',
-      oldTime: new Date()
+      oldTime: new Date(),
+      animationData: {},
+      nowpage: 0,
+      loading: '',
+      isloading: true,
+      beginloading: false
     }
   },
   onLoad() {
-    this.getMsg()
+    this.getMsg(this.nowpage)
+    //this.nextPage()
   },
  
 
@@ -80,9 +118,17 @@ export default {
     changeTime(date){
       return dateHandler.dateTime(date)
     },
-    getMsg() {
+    getMsg(page) {
+      this.nowpage++
       const msg = fakedata.fmessage()
-      for (var i = 0; i < msg.length; i++) {  
+      let maxpages = msg.length
+      if (msg.length > (page + 1) * 10){
+        maxpages = (page + 1) * 10
+      } else {
+        this.nowpage = -1
+      }
+
+      for (var i = page*10; i < maxpages; i++) {  
         if (i < msg.length - 1) {
           let t = dateHandler.spaceTime(this.oldTime, msg[i].time)
           if(t) {
@@ -99,9 +145,34 @@ export default {
         }  
         this.msgs.unshift(msg[i])  
       }
+      
       this.$nextTick(function(){
-        this.scrolltoview = 'msg' + this.msgs[i-1].tip
+        this.scrolltoview = 'msg' + this.msgs[maxpages - page * 10 - 1].tip
       })
+      clearInterval(this.loading)
+      this.isloading = false
+      this.beginloading = false
+    },
+    nextPage () {
+      if (this.nowpage > 0 && !this.beginloading) {
+        this.isloading = true
+        this.beginloading = true
+        var animation = uni.createAnimation({
+          duration: 1000,
+          timingFunction: 'ease'
+        })
+
+        this.animation = animation
+        let i = 1
+        this.loading = setInterval(() => {
+          animation.rotate(i*30).step()
+          this.animationData = animation.export()
+          i++
+          if (i > 10) {
+            this.getMsg(this.nowpage)
+          }
+        }, 100)
+      }  
     },
     
     //预览图片
@@ -117,8 +188,7 @@ export default {
           longPressActions: {
               itemList: ['发送给朋友', '保存图片', '收藏'],
               success: function(data) {
-                  console.log('选中了第' + (data.tapIndex + 1) + '个按钮,第' + (data.index + 1) + '张图片');
-                  
+                  console.log('选中了第' + (data.tapIndex + 1) + '个按钮,第' + (data.index + 1) + '张图片');   
               },
               fail: function(err) {
                   console.log(err.errMsg);
@@ -126,13 +196,22 @@ export default {
           }
       })
     },
-    inputs(msg) {
+    //音频播放
+    playVoice (e) {
+      const innerAudioContext = uni.createInnerAudioContext()
+      innerAudioContext.autoplay = true
+      innerAudioContext.src = e
+      innerAudioContext.onPlay(() => {
+        console.log('开始播放');
+      })
+    },
+    inputs(e) {
       let len = this.msgs.length
       let data = {
         id: 'b',
         imgUrl: '../../static/img/user/3.png',
-        message: msg,
-        types: 0,
+        message: e.message,
+        types: e.types,
         time: new Date(),
         tip: len
       }
@@ -140,6 +219,7 @@ export default {
       this.$nextTick(() => {
         this.scrolltoview = 'msg'+ len
       })
+      if(e.types === 1) this.imgmsgs.push(e.message)
     },
     heights(height) {
       this.inputh = height
@@ -159,6 +239,13 @@ export default {
 <style scoped>
 .chat {
   height: 100vh;
+}
+.loading {
+  text-align: center;
+}
+.loading image {
+  width: 39rpx;
+  height: 39rpx;
 }
 .chat-main {
   padding-left: 32rpx;
@@ -220,5 +307,36 @@ export default {
   margin-right: 16rpx;
   background-color: #f1c40f;
   border-radius: 10rpx 0rpx 10rpx 10rpx;
+}
+
+.msg-left .voice {
+  width: 200rpx;
+  text-align: right;
+  min-width: 100rpx;
+  max-width: 399rpx;
+}
+.msg-left .voice-img {
+  width: 46rpx;
+  height: 40rpx;
+  vertical-align: middle;
+  padding-top: 2rpx;
+  float: left;
+}
+.msg-right .voice {
+  width: 200rpx;
+  text-align: left;
+  min-width: 100rpx;
+  max-width: 399rpx;
+}
+.msg-right .voice-img {
+  width: 46rpx;
+  height: 40rpx;
+  vertical-align: middle;
+  float: right;
+  transform: rotate(180deg);
+  padding-bottom: 2rpx;
+}
+.displaynone {
+  display: none;
 }
 </style>

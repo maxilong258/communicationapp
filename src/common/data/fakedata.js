@@ -139,6 +139,22 @@ export default {
       {
         id: 'a',
         imgUrl: '5.png',
+        message: { voice: 'a', time: 60 },
+        types: 2,
+        time: new Date(),
+        tip: 15
+      },
+      {
+        id: 'b',
+        imgUrl: '7.png',
+        message: { voice: 'a', time: 20 },
+        types: 2,
+        time: new Date(),
+        tip: 16
+      },
+      {
+        id: 'a',
+        imgUrl: '5.png',
         message: 'lofi/jazz hiphop chillhop和一些爵士纯音都有',
         types: 0,
         time: new Date() - 1000,
