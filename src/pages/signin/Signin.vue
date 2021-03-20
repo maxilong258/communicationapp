@@ -58,11 +58,10 @@ export default {
     },
     test1 () {
       request({
-        url:'/signup/add',
+        url:'/index/getlastmsg',
         data: {
-          name: '溪水',
-          mail: 'xishui@nl.com',
-          pwd: '666666'
+          uid: "6055ed63f5ebc13758db06b5",
+          fid: "6052f757cbe4701ddcd8068d"
         },
         method: 'post'
       }).then((res) => {
@@ -74,11 +73,9 @@ export default {
       request({
         url:'/friend/updatefriendstate',
         data: {
-          uid: '6052f757cbe4701ddcd8068d',
-          fid: '604cd1a9fd028c2e58d6b144',
-          // msg: '好友请求3',
-          // type: 'email',
-          // pwd: '666666'
+          uid: "6055ed63f5ebc13758db06b5",
+          fid: "6052f757cbe4701ddcd8068d",
+          //msg: 'maxilong请求加为好友'
         },
         method: 'post'
       }).then((res) => {
