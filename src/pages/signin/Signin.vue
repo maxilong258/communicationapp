@@ -13,22 +13,21 @@
           placeholder="用户名/邮箱"
           placeholder-style="color:#999;font-weight:400;"
           v-model="username"
-          @input="getUsername"
         />
         <input
           type="password"
           placeholder="密码"
           placeholder-style="color:#999;font-weight:400;"
-          @input="getPassword"
+          v-model="password"
         />
       </div>
-      <div class="tips">用户名或密码错误</div>
+      <div class="tips" :style="{ display: showtips }">用户名或密码错误</div>
       <div
         class="submit"
         @click="loginClick"
         :class="{ readytologin: username && password }"
       >
-        <!-- <span>登录</span> -->
+        <span>登录</span>
       </div>
     </div>
   </div>
@@ -44,7 +43,8 @@ export default {
   data() {
     return {
       username: '',
-      password: ''
+      password: '',
+      showtips: 'none'
     }
   },
   onLoad(e) {
@@ -67,32 +67,43 @@ export default {
       this.password = e.detail.value
       console.log(this.password);
     },
-    test1 () {
-      request({
-        url:'/index/unreadmsg',
-        data: {
-          uid: "6055ed63f5ebc13758db06b5",
-          fid: "604cd1a9fd028c2e58d6b144",
-          //msg: 'maxilong请求添加好友'
-        },
-        method: 'post'
-      }).then((res) => {
-        console.log(res);       
-      })
-    },
     //登录提交
     loginClick () {
-      request({
-        url:'/friend/updatefriendstate',
-        data: {
-          uid: "6055ed63f5ebc13758db06b5",
-          fid: "6052f757cbe4701ddcd8068d",
-          //msg: 'maxilong请求加为好友'
-        },
-        method: 'post'
-      }).then((res) => {
-        console.log(res);
-      })
+      if (this.username && this.password) {
+        request({
+          url: '/signin/match',
+          data: {
+            data: this.username,
+            pwd: this.password
+          },
+          method: 'post'
+        }).then((res) => {
+          console.log(res)
+          let status = res.data.status
+          if ( status === 200) {
+            this.showtips = 'none'
+            let result = res.data.back
+            //登录成功 本地存储用户信息
+            try {
+              uni.setStorageSync('user', {'id': result.id, 'name': result.name, 'imgurl': result.imgurl, 'token': result.token})
+            } catch (e) {
+              console.log('数据存储出错');
+            }
+            uni.navigateTo({ url: '../index/Index' })
+          } else if ( status === 400 ) {
+            console.log('失败');
+            //用户匹配shibai
+            this.showtips = 'block'
+            this.password = ''
+          } else if ( status === 500 ) {
+            uni.showToast({
+              title: '服务器出错',
+              icon: 'none',
+              duration: 3939
+            })
+          }
+        })
+      }
     }
   }
 };

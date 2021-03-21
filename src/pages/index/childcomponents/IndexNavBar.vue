@@ -2,8 +2,11 @@
   <div class="index-nav-bar">
     <nav-bar class="home-nav">
       <div slot="left" class="nav-bar-left">
-        <navigator url="/pages/userhome/UserHome?id=aaa" hover-class="none">
-          <image src="~static/img/user/yyyeee.png" mode="aspectFill"></image>
+        <navigator
+          :url="'/pages/userhome/UserHome?id=' + uid"
+          hover-class="none"
+        >
+          <image :src="imgurl" mode="aspectFill"></image>
         </navigator>
       </div>
       <div slot="center" class="nav-bar-center">
@@ -25,6 +28,20 @@ export default {
   name: "IndexNavBar",
   components: {
     NavBar
+  },
+  props: {
+    imgurl: {
+      type: String,
+      default() {
+        return '';
+      }
+    },
+    uid: {
+      type: String,
+      default() {
+        return ''
+      }
+    }
   },
   methods: {
     toSearchPage() {

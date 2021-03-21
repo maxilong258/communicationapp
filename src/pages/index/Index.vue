@@ -1,10 +1,8 @@
 <template>
   <div class="index">
-    <index-nav-bar></index-nav-bar>
-
+    <index-nav-bar :imgurl="imgurl" :uid="uid"></index-nav-bar>
     <div class="home-content">
       <index-friend-request></index-friend-request>
-
       <index-friend-list :friends="friends"></index-friend-list>
     </div>
   </div>
@@ -26,17 +24,35 @@ export default {
   },
   data() {
     return {
-      friends: []
+      friends: [],
+      uid: '',
+      imgurl: '',
+      token: ''
     };
   },
   onLoad() {
-    this.getFriends();
+    this.getFriends()
+    this.getStorages()
   },
   methods: {
     getFriends() {
       this.friends = fakedata.friends();
       for (let item of this.friends) {
         item.imgUrl = "../../static/img/user/" + item.imgUrl;
+      }
+    },
+    getStorages() {
+      try {
+        const value = uni.getStorageSync('user')
+        if (value) {
+          this.uid = value.id
+          this.imgurl = this.serverUrl + '/user/' + value.imgurl
+          this.token = value.token
+        } else {
+          uni.navigateTo({ url: '/pages/signin/Signin' })
+        }
+      } catch (e) {
+          
       }
     }
   }
