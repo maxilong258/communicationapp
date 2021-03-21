@@ -28,7 +28,7 @@
         @click="loginClick"
         :class="{ readytologin: username && password }"
       >
-        <span>登录</span>
+        <!-- <span>登录</span> -->
       </div>
     </div>
   </div>
