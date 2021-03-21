@@ -15,14 +15,14 @@
             placeholder="请输入昵称"
             class="username"
             placeholder-style="color:#999;font-weight:400;"
-            @input="registerGetUsername"
+            @blur="registerGetUsername"
           />
           <div class="employ" v-if="isnameinuse">昵称已被占用</div>
           <image
             src="~static/img/assets/ok.png"
             mode="scaleToFill"
             class="ok"
-            v-if="!isnameinuse"
+            v-if="isuser"
           />
         </div>
         <div class="inputs-div">
@@ -31,7 +31,7 @@
             placeholder="请输入邮箱"
             class="email"
             placeholder-style="color:#999;font-weight:400;"
-            @input="registerGetEmail"
+            @blur="registerGetEmail"
           />
           <div class="employ" v-if="isemailinuse">邮箱已被注册</div>
           <div class="inavlid" v-if="notemail">请输入正确的邮箱地址</div>
@@ -39,7 +39,7 @@
             src="~static/img/assets/ok.png"
             mode="scaleToFill"
             class="ok"
-            v-if="!isemailinuse && !notemail"
+            v-if="isemail"
           />
         </div>
         <div class="inputs-div">
@@ -62,7 +62,12 @@
         class="submit"
         :class="{
           readytoregister:
-            !isnameinuse && !isemailinuse && !notemail && password,
+            !isnameinuse &&
+            !isemailinuse &&
+            !notemail &&
+            password &&
+            isuser &&
+            isemail,
         }"
         @click="gotoregister"
       >
@@ -74,12 +79,15 @@
 
 <script>
 import SignupNavBar from "./childcomponents/SignupNavBar";
+import { request } from 'network/request'
 export default {
   name: "Signup",
   components: { SignupNavBar },
   data() {
     return {
       type: "password",
+      isuser: false,
+      isemail: false,
       isnameinuse: false,
       isemailinuse: false,
       notemail: false,
@@ -87,8 +95,17 @@ export default {
       lookUrl: '../../static/img/assets/eye-open.png',
       username: '',
       email: '',
-      password: ''
+      password: '',
+      isok: false
     };
+  },
+  computed: {
+    // isOk() {
+    //   let that = this
+    //   if(that.isnameinuse && that.isemailinuse && that.password.length > 5) that.isok = true
+    //   else that.isok = false
+    //   return that.isok
+    // }
   },
   methods: {
     //切换密码显示
@@ -106,6 +123,39 @@ export default {
     //验证输入
     registerGetUsername(e) {
       this.username = e.detail.value
+      if (this.username.length > 0) {
+        request({
+          url: '/signup/judge',
+          data: {
+            data: this.username,
+            type: 'name'
+          },
+          method: 'post'
+        }).then((res) => {
+          console.log(res)
+          let status = res.data.status
+          if (status === 200) {
+            let result = res.data.result
+            if (result > 0) {
+              this.isnameinuse = true
+              this.isuser = false
+            } else {
+              this.isnameinuse = false
+              this.isuser = true
+            }
+            //this.isOk
+          } else if (status === 500) {
+            uni.showToast({
+              title: '服务器出错了',
+              icon: 'none',
+              duration: 3939,
+            })
+          }
+        })
+      } else {
+        this.isuser = false
+        this.isnameinuse = false
+      }
       console.log(this.username);
     },
     registerGetEmail(e) {
@@ -116,10 +166,44 @@ export default {
         if (reg.test(this.email)){
           console.log('正确');
           this.notemail = false
+          request({
+            url: '/signup/judge',
+            data: {
+              data: this.email,
+              type: 'email'
+            },
+            method: 'post'
+          }).then((res) => {
+            console.log(res)
+            let status = res.data.status
+            if (status === 200) {
+              let result = res.data.result
+              if (result > 0) {
+                this.isemailinuse = true
+                this.isemail = false
+              } else {
+                this.isemailinuse = false
+                this.isemail = true
+              }
+              //this.isOk
+            } else if (status === 500) {
+              uni.showToast({
+                title: '服务器出错了',
+                icon: 'none',
+                duration: 3939,
+              })
+            }
+          })
         } else {
           console.log('不正确');
           this.notemail = true
+          this.isemailinuse = false
+          this.isemail = false
         }
+      } else {
+        this.notemail = true
+        this.isemailinuse = false
+        this.isemail = false
       }
     },
     registerGetPassword(e) {
@@ -128,8 +212,30 @@ export default {
     },
     //去注册
     gotoregister() {
-      if(!this.isnameinuse && !this.isemailinuse && !this.notemail && this.password)
-      console.log(this.username + ' ' + this.email + ' ' + this.password)
+      if(!this.isnameinuse && !this.isemailinuse && !this.notemail && this.password && this.isuser && this.isemail){
+        request({
+          url: '/signup/add',
+          data: {
+            name: this.username,
+            mail: this.email,
+            pwd: this.password
+          },
+          method: 'post'
+        }).then((res) => {
+          console.log(res);
+          let status = res.data.status
+          if (status === 200) {
+            uni.navigateTo({ url: '../signin/Signin?username=' + this.username })
+          } else if (status === 500) {
+            uni.showToast({
+              title: '服务器出错了',
+              icon: 'none',
+              duration: 3939,
+            })
+          }
+        })
+      }
+      
     }
   }
 };

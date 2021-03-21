@@ -12,6 +12,7 @@
           type="text"
           placeholder="用户名/邮箱"
           placeholder-style="color:#999;font-weight:400;"
+          v-model="username"
           @input="getUsername"
         />
         <input
@@ -46,6 +47,16 @@ export default {
       password: ''
     }
   },
+  onLoad(e) {
+    if(e.username){
+      this.username = e.username
+      uni.showToast({
+        title: '注册成功请登录',
+        icon: 'none',
+        duration: 3939
+      })
+    }
+  },
   methods: {
     //获取用户输入信息
     getUsername (e) {
@@ -58,14 +69,15 @@ export default {
     },
     test1 () {
       request({
-        url:'/index/getlastmsg',
+        url:'/index/unreadmsg',
         data: {
           uid: "6055ed63f5ebc13758db06b5",
-          fid: "6052f757cbe4701ddcd8068d"
+          fid: "604cd1a9fd028c2e58d6b144",
+          //msg: 'maxilong请求添加好友'
         },
         method: 'post'
       }).then((res) => {
-        console.log(res);
+        console.log(res);       
       })
     },
     //登录提交

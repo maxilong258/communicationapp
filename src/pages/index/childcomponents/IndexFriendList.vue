@@ -24,7 +24,7 @@
 </template>
 
 <script>
-import dateHandler from "../../../common/js/dateHandler";
+import dateHandler from "common/js/dateHandler";
 export default {
   name: "IndexFriendList",
   props: {
