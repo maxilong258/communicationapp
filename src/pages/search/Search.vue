@@ -1,6 +1,9 @@
 <template>
   <div class="search-page">
-    <search-top @getsearchresarr="getsearchresarr"></search-top>
+    <search-top
+      @getsearchresarr="getsearchresarr"
+      :storagevalue="storagevalue"
+    ></search-top>
     <div class="main">
       <div class="search-user result">
         <div class="title" v-if="searchresult.length > 0">用户</div>
@@ -9,7 +12,10 @@
           v-for="(item, index) in searchresult"
           :key="index"
         >
-          <navigator url="/pages/userhome/UserHome" hover-class="none">
+          <navigator
+            :url="'/pages/userhome/UserHome?id=' + item._id"
+            hover-class="none"
+          >
             <image :src="item.imgUrl" />
           </navigator>
 
@@ -18,7 +24,12 @@
             <div class="email" v-html="item.email"></div>
           </div>
           <div class="right-btn send" v-if="item.tomodaji === 1">发消息</div>
-          <div class="right-btn add" v-if="item.tomodaji === 0">加好友</div>
+          <navigator
+            :url="'/pages/userhome/UserHome?id=' + item._id"
+            hover-class="none"
+          >
+            <div class="right-btn add" v-if="item.tomodaji === 0">加好友</div>
+          </navigator>
         </div>
         <div class="title">群组</div>
         <div class="list user">
@@ -43,14 +54,31 @@ export default {
   },
   data() {
     return {
+      storagevalue: {},
       searchresult: []
     }
   },
+  onLoad() {
+    this.getStorages()
+  },
   methods: {
+    getStorages () {
+      try {
+        const value = uni.getStorageSync('user')
+        if (value) {
+          this.storagevalue = value
+        } else {
+          uni.navigateTo({ url: '/pages/signin/Signin' })
+        }
+        console.log(this.storagevalue);
+      } catch (e) {
+
+      }
+    },
     getsearchresarr(searchresarr) {
       this.searchresult = searchresarr
       console.log(this.searchresult);
-    }
+    },
   }
 }
 </script>

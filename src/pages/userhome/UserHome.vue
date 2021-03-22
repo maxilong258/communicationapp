@@ -1,35 +1,38 @@
 <template>
   <div class="user-home">
-    <user-home-nav-bar></user-home-nav-bar>
+    <user-home-nav-bar :relation="relation" :id="id"></user-home-nav-bar>
     <div class="bg">
       <view class="bg-white" :animation="animationData3"></view>
-      <image src="~static/img/user/3.png" mode="aspectFill" class="bg-img" />
+      <image :src="user.imgurl" mode="aspectFill" class="bg-img" />
     </div>
     <div class="main">
       <div class="user-header">
         <view
           class="sex"
-          :style="{ background: sexBg }"
+          :style="{ background: sexbg }"
           :animation="animationData2"
         >
-          <image src="~static/img/assets/female.png" mode="scaleToFill" />
+          <image :src="seximg" mode="scaleToFill" />
         </view>
         <image
-          src="~static/img/user/3.png"
+          :src="user.imgurl"
           mode="aspectFill"
           class="user-img"
           :animation="animationData1"
         />
       </div>
       <div class="user-info">
-        <div class="username">{{ user.name }}</div>
-        <div class="usernick">昵称: {{ user.nick }}</div>
-        <div class="userintro">{{ user.intro }}</div>
+        <div class="username">{{ markname }}</div>
+        <div class="usernick">昵称: {{ user.name }}</div>
+        <div class="userintro">{{ user.explain }}</div>
       </div>
     </div>
 
     <user-home-bottom-bar>
-      <div class="bottom-btn" @click="addFriendAnime">加为好友</div>
+      <div class="bottom-btn" @click="addFriendAnime" v-if="relation === 2">
+        加为好友
+      </div>
+      <div class="bottom-btn" v-if="relation === 1">发送消息</div>
     </user-home-bottom-bar>
     <!-- ------------------------------------------------------------------------------------------------- -->
     <view
@@ -38,16 +41,12 @@
       :animation="animationData"
     >
       <div class="name">{{ user.name }}</div>
-      <textarea
-        :value="myname + '请求加为好友'"
-        maxlength="120"
-        class="add-text"
-      />
+      <textarea v-model="addfriendmsg" maxlength="120" class="add-text" />
     </view>
 
     <view class="add-bt" :animation="animationData">
       <view class="close" @click="addFriendAnime">取消</view>
-      <div class="send">发送</div>
+      <div class="send" @click="addFriend">发送</div>
     </view>
   </div>
 </template>
@@ -55,6 +54,7 @@
 <script>
 import UserHomeBottomBar from './childcomponents/UserHomeBottomBar.vue'
 import UserHomeNavBar from './childcomponents/UserHomeNavBar'
+import { request } from 'network/request'
 
 export default {
   name: 'UserHome',
@@ -64,25 +64,139 @@ export default {
   },
   data() {
     return {
-      sexBg: 'rgba(255, 93, 91, 1)',
-      myname: '大海',
+      id: '',
+      uid: '',
+      token: '',
+      seximg: '',
+      sexbg: '',
+      relation: null,     //用户与自己的状态 0 为自己 1 为好友 2 为不是好友
+      myname: '',
+      addfriendmsg: '请求加为好友',
+      markname: '',
       addHeight: '',
       animationData: {},
       animationData1: {},
       animationData2: {},
       animationData3: {},
       isAdd: false,
-      user: {
-        name: '大厦',
-        nick: '青丘国主',
-        intro: ' 如果没有找到字体那将显示默认的网页字体。而每个人安装的操作系统(XP\VISTA\WIN7等系统)默认包括此几种中文字体。这样我们要使用每个人操作系统自带都有的字体作为网页字体，所以不能设置我们单独安装的文字字体。'
-      }
+      user: {}
     }
+  },
+  onLoad (e) {
+    this.id = e.id
+    this.getStorages()
+    this.getUser()
+    this.friendJudge()
   },
   mounted() {
     this.getElementStyle()
   },
   methods: {
+    getStorages () {
+      try {
+        const value = uni.getStorageSync('user')
+        if (value) {
+          this.uid = value.id
+          this.token = value.token
+          this.myname = value.name
+        } else {
+          uni.navigateTo({ url: '/pages/signin/Signin' })
+        }
+      } catch (e) {
+        //error
+      }
+    },
+    getUser () {
+      request({
+        url: '/user/detail',
+        data: {
+          id: this.id,
+          token: this.token
+        },
+        method: 'post'
+      }).then((res) => {
+        console.log(res);
+        let status = res.data.status
+        if (status === 200) {
+          let result = res.data.result
+          result.imgurl = this.serverUrl + '/user/' + result.imgurl
+          if (typeof(res.explain)) result.explain = '这个人很懒，什么都没有留下'
+          if ( this.markname.length === 0 ) this.markname = result.name
+          this.sexJudge(result.sex)
+          this.user = result
+        } else if (status === 500) {
+          uni.showToast({
+          title: '服务器出错',
+          icon: 'none',
+          duration: 3939
+         })
+        } else if (status === 300) {
+          uni.navigateTo({ url: '/pages/signin/Signin?name=' + this.myname })
+        }
+      })
+    },
+    sexJudge (e) {
+      if(e == 'female') {
+        this.seximg = '../../static/img/assets/female.png'
+        this.sexbg = 'rgba(255, 93, 91, 1)'
+      } else if (e === 'male') {
+        this.seximg = '../../static/img/assets/male.png'
+        this.sexbg = '#ooafc0'
+      } else if (e === "asexual") {
+        this.sexbg = 'black'
+      }
+    },
+    friendJudge () {
+      if (this.id === this.uid) return this.relation = 0
+      request({
+        url: '/search/isfriend',
+        data: {
+          uid: this.uid,
+          fid: this.id,
+          token: this.token
+        },
+        method: 'post',
+      }).then((res) => {
+        console.log(res);
+        let status = res.data.status
+        if (status === 200) {
+          this.relation = 1
+          this.getMarkname()
+        }
+        else if (status === 400) this.relation = 2
+        else if (status === 500) uni.showToast({
+          title: '服务器出错',
+          icon: 'none',
+          duration: 3939
+        })
+      })
+    },
+    getMarkname () {
+      request({
+        url: '/user/getmarkname',
+        data: {
+          uid: this.uid,
+          fid: this.id,
+          token: this.token
+        },
+        method: 'post'
+      }).then((res) => {
+        console.log(res);
+        let status = res.data.status
+        if (status === 200) {
+          let result = res.data.result
+          if(!typeof(result.markname)) this.markname = result.markname
+        } else if (status === 300) {
+          uni.navigateTo({ url: '/pages/signin/Signin?name=' + this.myname })
+        } else if(status === 500) {
+          uni.showToast({
+            title: '服务器出错',
+            icon: 'none',
+            duration: 3939
+          })
+        }
+      })
+    },
     getElementStyle () {
       const query = uni.createSelectorQuery().in(this);
       query.select('.bg').boundingClientRect(data => {
@@ -126,8 +240,39 @@ export default {
       this.animationData1 = animation1.export()
       this.animationData2 = animation2.export()
       this.animationData3 = animation3.export()
-    }
-  }
+    },
+    addFriend() {
+      console.log(this.uid);
+      request({
+        url: '/friend/applyfriend',
+        data: {
+          uid: this.uid,
+          fid: this.id,
+          token: this.token,
+          msg: this.addfriendmsg
+        },
+        method: 'post'
+      }).then((res) => {
+        console.log(res);
+        let status = res.data.status
+        if(status === 200) {
+          uni.showToast({
+            title: '好友请求发送成功',
+            icon: 'none',
+            duration: 3939
+          })
+        } else if (status === 300) {
+          uni.navigateTo({ url: '/pages/signin/signin?name=' + this.myname })
+        } else if (status === 500) {
+          uni.showToast({
+            title: '服务器出错',
+            icon: 'none',
+            duration: 3939
+          })
+        }
+      })
+    } 
+  }, 
 }
 </script>
 

@@ -20,53 +20,131 @@
 
 <script>
 import SearchTopBar from "components/content/searchtopbar/SearchTopBar"
-import fakedata from '../../../common/data/fakedata'
+import fakedata from 'common/data/fakedata'
+import { debounce } from 'common/js/utils'
+import { request } from 'network/request'
+
 export default {
   name: 'SearchTop',
   components: {
     SearchTopBar
   },
+  props: {
+    storagevalue: {
+      type: Object,
+      default() {
+        return {}
+      }
+    }
+  },
   data() {
     return {
+      // uid: this.storagevalue.id,
+      // token: this.storagevalue.token,
+      // myname: this.storagevalue.name,
       searchresarr: []
     }
   },
+  onLoad() {
+    //console.log(this.storagevalue);
+    //this.getStorages() 
+  },
   methods: {
+    
     backOne() {
       uni.navigateBack({ delta: 1 })
     },
     //获取关键词
-    search(e) {
+    search:debounce(function(e){
       this.searchresarr = []
       let searchvalue = e.detail.value
-      if (searchvalue.length > 0) {
-        this.searchUser(searchvalue)
-      }
-    },
+      if (searchvalue.length > 0) this.searchUser(searchvalue)
+    },399),
+   
+    
+    // search(e) {
+    //   this.searchresarr = []
+    //   let searchvalue = e.detail.value 
+    //   if (searchvalue.length > 0) {
+    //     this.searchUser(searchvalue)
+    //   }
+    // },
     //寻找匹配关键词的用户
     searchUser(e) {
-      const arr = fakedata.friends()
-      let exp = eval("/"+e+"/g")
-      for (let item of arr) {
-        this.isFriend(item)
-        if (item.name.search(e) != -1 || item.email.search(e) != -1){
-          item.imgUrl = '../../static/img/user/' + item.imgUrl
-          item.name = item.name.replace(exp, '<span style="color:#3498db";>' + e + '</span>')
-          item.email = item.email.replace(exp, '<span style="color:#3498db";>' + e + '</span>')
-          this.searchresarr.push(item)
-        }  
-      }
-      this.$emit('getsearchresarr', this.searchresarr)
+      request({
+        url: '/search/user',
+        data: {
+          data: e,
+          token: this.storagevalue.token
+        },
+        method: 'post'
+      }).then((res) => {
+        console.log(res);
+        let status = res.data.status
+        if (status === 200) {
+          let result = res.data.result
+          let exp = eval("/"+e+"/g")
+          for (let item of result) {
+            this.isFriend(item)
+            item.imgUrl = this.serverUrl + item.imgurl
+            item.name = item.name.replace(exp, '<span style="color:#3498db";>' + e + '</span>')
+            item.email = item.email.replace(exp, '<span style="color:#3498db";>' + e + '</span>')
+            this.searchresarr.push(item)     
+            console.log(item);
+          }
+          this.$emit('getsearchresarr', this.searchresarr)
+        } else if (status === 300) {
+          uni.navigateTo({ url: '/pages/signin/Signin?name=' + this.storagevalue.name })
+        }
+        else if (status === 500) {
+          uni.showToast({
+            title: '服务器出错',
+            icon: 'none',
+            duration: 3939
+          })
+        } 
+      })
+
+      
     },
     //判断是否为好友
     isFriend(e) {
       let tomodaji = 0
-      const arr = fakedata.isFriend();
-      for (let item of arr) {
-        if (item.friend === e.id) tomodaji = 1
+      if (this.storagevalue.id === e._id){
+        tomodaji = 2
+        e.tomodaji = tomodaji
+      }else{
+        request({
+          url: '/search/isfriend',
+          data: {
+            uid: this.storagevalue.id,
+            fid: e._id,
+            token: this.storagevalue.token
+          },
+          method: 'post'
+        }).then((res) => {
+          console.log(res);
+          let status = res.data.status
+          if (status === 200) {
+            e.tomodaji = 1
+          } else if (status === 400) {
+
+          } else if (status === 300) {
+            uni.navigateTo({ url: '/pages/signin/Signin?name=' + this.storagevalue.name })
+          } else if (status === 500) {
+            uni.showToast({
+              title: '服务器出错',
+              icon: 'none',
+              duration: 3939
+            })
+          } 
+          
+        })
       }
+      //  if (item.friend === e.id) tomodaji = 1
       e.tomodaji = tomodaji
-      console.log(e.tomodaji);
+      // // console.log(e.tomodaji);
+      
     }
   }
 }

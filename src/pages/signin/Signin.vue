@@ -55,6 +55,13 @@ export default {
         icon: 'none',
         duration: 3939
       })
+    } else if (e.name) {
+      this.username = e.name
+      uni.showToast({
+        title: '登录过期请重新登录',
+        icon: 'none',
+        duration: 3939
+      })
     }
   },
   methods: {

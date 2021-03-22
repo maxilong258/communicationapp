@@ -1,7 +1,7 @@
 <template>
   <div class="user-detail-nav">
     <nav-bar-1 class="user-detail-nav">
-      <div slot="left" class="user-detail-nav-left">
+      <div slot="left" class="user-detail-nav-left" @click="backOne">
         <image src="~static/img/assets/back.png" />
       </div>
       <div slot="center">详细</div>
@@ -15,6 +15,11 @@ export default {
   name: 'UserDetailNav',
   components: {
     NavBar1
+  },
+  methods: {
+    backOne () {
+      uni.navigateBack({ delta: 1 })
+    }
   }
 }
 </script>

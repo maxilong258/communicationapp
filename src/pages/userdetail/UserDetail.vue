@@ -30,7 +30,7 @@
       <div class="column">
         <div class="row" @click="modify('昵称', fakedataarr.name, false)">
           <div class="title">昵称</div>
-          <div class="cont">{{ fakedataarr.name }}</div>
+          <div class="cont">{{ markname }}</div>
           <div class="edit"><image src="~static/img/assets/edit.png" /></div>
         </div>
         <div class="row">
@@ -116,7 +116,8 @@
 
 <script>
 import UserDetailNav from './childcomponents/UserDetailNav.vue'
-import ImageCropper from '../../components/common/ling-imgcropper/ling-imgcropper'
+import ImageCropper from 'components/common/ling-imgcropper/ling-imgcropper'
+import { request } from 'network/request'
 export default { 
   name: 'UserDetail',
   components: { 
@@ -128,6 +129,12 @@ export default {
       format: true
     })
     return {
+      id: '',
+      uid: '',
+      token: '',
+      myname: '',
+      markname: '',
+      user: {},
       //模拟数据
       fakedataarr: {
         name: '大伊万',
@@ -160,10 +167,96 @@ export default {
       return this.getDate('end');
     }
   },
+  onLoad(e) {
+    this.id = e.id
+    this.getStorages()
+    this.getUser()
+    this.getMarkname()
+  },
   mounted() {
     this.getElementStyle()
   },
   methods: {
+    getStorages () {
+      try {
+        const value = uni.getStorageSync('user')
+        if (value) {
+          this.uid = value.id
+          this.token = value.token
+          this.myname = value.name
+        } else {
+          uni.navigateTo({ url: '/pages/signin/Signin' })
+        }
+        console.log(this.storagevalue);
+      } catch (e) {
+
+      }
+    },
+    getUser () {
+      request({
+        url: '/user/detail',
+        data: {
+          id: this.id,
+          token: this.token
+        },
+        method: 'post'
+      }).then((res) => {
+        console.log(res)
+        let status = res.data.status
+        if (status === 200) {
+          let result = res.data.result
+          result.imgurl = this.serverUrl + result.imgurl;
+          if (typeof(result.explain)) {
+            result.explain = '这个人很懒，什么都没有留下'
+          }
+          if (this.markname.length === 0) {
+            this.markname = result.name
+          }
+          //this.sexJudge(result.sex);
+          this.user = result
+          console.log(this.user);
+        } else if (status === 500) {
+          uni.showToast({
+          title: '服务器出错',
+          icon: 'none',
+          duration: 3939
+         })
+        } else if (status === 300) {
+          uni.navigateTo({ url: '/pages/signin/Signin?name=' + this.myname })
+        }
+      })
+
+    },
+    getMarkname () {
+      if (this.id !== this.uid) {
+        request({
+          url: '/user/getmarkname',
+          data: {
+            uid: this.uid,
+            fid: this.id,
+            token: this.token
+          },
+          method: 'post'
+        }).then((res) => {
+          console.log(res);
+          let status = res.data.status
+          if (status === 200) {
+            let result = res.data.result
+            if(!typeof(result.markname)) this.markname = result.markname
+          } else if (status === 300) {
+            uni.navigateTo({ url: '/pages/signin/Signin?name=' + this.myname })
+          } else if(status === 500) {
+            uni.showToast({
+              title: '服务器出错',
+              icon: 'none',
+              duration: 3939
+            })
+          }
+        })
+      }
+    },
+
+
     bindPickerChange: function(e) {
       console.log('picker发送选择改变，携带值为', e.target.value)
       this.index = e.target.value
@@ -264,10 +357,7 @@ export default {
     modifySubmit() {
       this.modify()
     }
-    
   },
-  
-
   
 }
 </script>
