@@ -98,13 +98,14 @@ export default {
         if (value) {
           this.uid = value.id
           this.token = value.token
-          this.myname = value.name
+          this.myname = value.name 
         } else {
           uni.navigateTo({ url: '/pages/signin/Signin' })
         }
       } catch (e) {
         //error
       }
+      
     },
     getUser () {
       request({
@@ -119,7 +120,7 @@ export default {
         let status = res.data.status
         if (status === 200) {
           let result = res.data.result
-          result.imgurl = this.serverUrl + '/user/' + result.imgurl
+          result.imgurl = this.serverUrl + result.imgurl
           if (typeof(res.explain)) result.explain = '这个人很懒，什么都没有留下'
           if ( this.markname.length === 0 ) this.markname = result.name
           this.sexJudge(result.sex)
@@ -185,7 +186,7 @@ export default {
         let status = res.data.status
         if (status === 200) {
           let result = res.data.result
-          if(!typeof(result.markname)) this.markname = result.markname
+          if(result.markname != undefined) this.markname = result.markname
         } else if (status === 300) {
           uni.navigateTo({ url: '/pages/signin/Signin?name=' + this.myname })
         } else if(status === 500) {

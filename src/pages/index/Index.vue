@@ -12,7 +12,7 @@
 import IndexNavBar from "./childcomponents/IndexNavBar";
 import IndexFriendRequest from "./childcomponents/IndexFriendRequest";
 import IndexFriendList from "./childcomponents/IndexFriendList";
-
+import { request } from 'network/request'
 import fakedata from "../../common/data/fakedata";
 
 export default {
@@ -31,22 +31,35 @@ export default {
     };
   },
   onLoad() {
-    this.getFriends()
     this.getStorages()
+    this.getFriends()
   },
   methods: {
+    // getFriends1() {
+    //   this.friends = fakedata.friends();
+    //   for (let item of this.friends) {
+    //     item.imgUrl = "../../static/img/user/" + item.imgUrl;
+    //   }
+    // },
     getFriends() {
-      this.friends = fakedata.friends();
-      for (let item of this.friends) {
-        item.imgUrl = "../../static/img/user/" + item.imgUrl;
-      }
+      request({
+        url: '/index/getfriend',
+        data: {
+          uid: this.uid,
+          state: 0,
+          token: this.token
+        },
+        method: 'post'
+      }).then((res) => {
+        console.log(res);
+      })
     },
     getStorages() {
       try {
         const value = uni.getStorageSync('user')
         if (value) {
           this.uid = value.id
-          this.imgurl = this.serverUrl + '/user/' + value.imgurl
+          this.imgurl = this.serverUrl  + value.imgurl
           this.token = value.token
         } else {
           uni.navigateTo({ url: '/pages/signin/Signin' })

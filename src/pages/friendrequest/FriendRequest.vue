@@ -2,38 +2,25 @@
   <div class="friend-request-page">
     <friend-request-nav></friend-request-nav>
     <div class="main">
-      <div class="requester">
+      <div
+        class="requester"
+        v-for="(item, index) in requestingfriends"
+        :key="index"
+      >
         <div class="request-top">
           <div class="reject btn">拒绝</div>
           <div class="top-img">
-            <image src="~static/img/user/3.png" />
+            <image :src="item.imgurl" />
           </div>
-          <div class="agree btn">同意</div>
+          <div class="agree btn" @click="agree(item.id)">同意</div>
         </div>
         <div class="request-center">
-          <div class="title">名字</div>
-          <div class="time">2020-1-30</div>
+          <div class="title">{{ item.name }}</div>
+          <div class="time">{{ item.lastTime }}</div>
         </div>
         <div class="notic">
           <text>留言：</text>
-          从底部弹起的滚动选择器。支持五种选择器，通过mode来区分，分别是普通选择器，多列选择器，时间选择器，日期选择器，省市区选择器，默认是普通选择器。
-        </div>
-      </div>
-      <div class="requester">
-        <div class="request-top">
-          <div class="reject btn">拒绝</div>
-          <div class="top-img">
-            <image src="~static/img/user/3.png" />
-          </div>
-          <div class="agree btn">同意</div>
-        </div>
-        <div class="request-center">
-          <div class="title">名字</div>
-          <div class="time">2020-1-30</div>
-        </div>
-        <div class="notic">
-          <text>留言：</text>
-          从底部弹起的滚动选择器。支持五种选择器，通过mode来区分，分别是普通选择器，多列选择器，时间选择器，日期选择器，省市区选择器，默认是普通选择器。
+          <div>{{ item.message }}</div>
         </div>
       </div>
     </div>
@@ -42,12 +29,86 @@
 
 <script>
 import FriendRequestNav from './childcomponents/FriendRequestNav.vue'
-
+import { request } from 'network/request'
 export default {
   name: 'FriendRequest',
   components: {
     FriendRequestNav 
   },
+  data () {
+    return {
+      storagevalue: {},
+      requestingfriends: []
+    }
+  },
+  onLoad () {
+    this.getStorages()
+    this.getFriends()
+  },
+  methods: {
+    getStorages() {
+      try {
+        const value = uni.getStorageSync('user')
+        if (value) {
+          this.storagevalue = value
+        } else {
+          uni.navigateTo({ url: '/pages/signin/Signin' })
+        }
+        console.log(this.storagevalue);
+      } catch (e) {
+          
+      }
+    },
+    getFriends () {
+      request({
+        url: 'index/getfriend',
+        data: {
+          uid: this.storagevalue.id,
+          state: 1,
+          token: this.storagevalue.token
+        },
+        method: 'post'
+      }).then((res) => {
+        if (res.data.status === 200) {
+          for (let item of res.data.result) {
+            item.imgurl = this.serverUrl + item.imgurl
+            request({
+              url: 'index/getlastmsg',
+              data: {
+                uid: this.storagevalue.id,
+                fid: item.id,
+                token: this.storagevalue.token
+              },
+              method: 'post'
+            }).then((res) => {
+              if(res.data.status === 200) {
+                item.message =  res.data.result.message
+                this.requestingfriends.push(item)
+                console.log(this.requestingfriends);
+              }   
+            })
+          }   
+        }   
+      }) 
+    },
+    agree (fid) {
+      request({
+        url: '/friend/updatefriendstate',
+        data: {
+          uid: this.storagevalue.id,
+          fid: fid,
+          token: this.storagevalue.token
+        },
+        method: 'post'
+      }).then((res) => {
+        console.log(res);
+        const a = this.requestingfriends.filter((item) => {
+          return this.requestingfriends.id !== fid
+        })
+        console.log(a);
+      })
+    }
+  }
 }
 </script>
 

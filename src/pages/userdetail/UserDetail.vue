@@ -5,30 +5,55 @@
       <div class="column heads">
         <div class="row head">
           <div class="title">头像</div>
-          <div class="cont">
+          <div class="cont" v-if="id === uid">
             <image-cropper
               :src="tempFilePath"
               @confirm="confirm"
               @cancel="cancel"
             ></image-cropper>
-
             <image :src="cropFilePath" @tap="upload" class="user-img"></image>
           </div>
+          <div class="cont" v-if="id !== uid">
+            <image :src="cropFilePath" class="user-img"></image>
+          </div>
+          <div class="edit"><image src="~static/img/assets/edit.png" v-if="id === uid"/></div>
+        </div>
+        <div
+          class="row"
+          @click="modify('explain', user.explain, false)"
+          v-if="id === uid"
+        >
+          <div class="title">签名</div>
+          <div class="cont">{{ user.explain }}</div>
           <div class="edit"><image src="~static/img/assets/edit.png" /></div>
         </div>
-        <div class="row" @click="modify('签名', fakedataarr.sign, false)">
+        <div class="row" v-if="id !== uid">
           <div class="title">签名</div>
-          <div class="cont">{{ fakedataarr.sign }}</div>
-          <div class="edit"><image src="~static/img/assets/edit.png" /></div>
+          <div class="cont">{{ user.explain }}</div>
         </div>
         <div class="row">
           <div class="title">注册</div>
-          <div class="cont">{{ fakedataarr.register }}</div>
+          <div class="cont">
+            {{ user.time | showDate }}
+          </div>
         </div>
       </div>
 
       <div class="column">
-        <div class="row" @click="modify('昵称', fakedataarr.name, false)">
+        <div
+          class="row"
+          @click="modify('name', myname, false)"
+          v-if="id === uid"
+        >
+          <div class="title">昵称</div>
+          <div class="cont">{{ user.name }}</div>
+          <div class="edit"><image src="~static/img/assets/edit.png" /></div>
+        </div>
+        <div
+          class="row"
+          @click="modify('markname', markname, false)"
+          v-if="id !== uid"
+        >
           <div class="title">昵称</div>
           <div class="cont">{{ markname }}</div>
           <div class="edit"><image src="~static/img/assets/edit.png" /></div>
@@ -40,17 +65,23 @@
               @change="bindPickerChange"
               :value="sexpickerindex"
               :range="sexpickerarray"
+              v-if="id === uid"
             >
               <view class="uni-input">{{
                 sexpickerarray[sexpickerindex]
               }}</view>
             </picker>
+            <view class="uni-input" v-if="uid !== id">{{
+              sexpickerarray[sexpickerindex]
+            }}</view>
           </div>
-          <div class="edit"><image src="~static/img/assets/edit.png" /></div>
+          <div class="edit">
+            <image src="~static/img/assets/edit.png" v-if="id === uid">
+          </div>
         </div>
-        <div class="row">
+        <div class="row" v-if="id === uid">
           <div class="title">生日</div>
-          <div class="cont">
+          <div class="cont" >
             <picker
               mode="date"
               :value="date"
@@ -61,27 +92,42 @@
               <view class="uni-input">{{ date }}</view>
             </picker>
           </div>
-          <div class="edit"><image src="~static/img/assets/edit.png" /></div>
+          <div class="edit"><image src="~static/img/assets/edit.png"></div>
         </div>
-        <div class="row" @click="modify('昵称', fakedataarr.tell, false)">
+        <div class="row" v-if="id !== uid">
+          <div class="title">生日</div>
+          <div class="cont" >
+            <view class="uni-input">{{ date }}</view>
+          </div>
+        </div>
+        <div class="row" @click="modify('昵称', fakedataarr.tell, false)" v-if="id === uid">
           <div class="title">电话</div>
-          <div class="cont">{{ fakedataarr.tell }}</div>
+          <div class="cont">{{ user.phone }}</div>
           <div class="edit"><image src="~static/img/assets/edit.png" /></div>
         </div>
-        <div class="row" @click="modify('昵称', fakedataarr.mall, true)">
+        <div class="row" v-if="id !==uid">
+          <div class="title">电话</div>
+          <div class="cont">{{ user.phone }}</div>
+        </div>
+        <div class="row" @click="modify('昵称', fakedataarr.mall, true)" v-if="id === uid">
           <div class="title">邮箱</div>
-          <div class="cont">{{ fakedataarr.mall }}</div>
+          <div class="cont">{{ user.email }}</div>
           <div class="edit"><image src="~static/img/assets/edit.png" /></div>
+        </div>
+        <div class="row" v-if="id !== uid">
+          <div class="title">邮箱</div>
+          <div class="cont">{{ user.email }}</div>
         </div>
       </div>
-      <div class="column">
+      <div class="column" v-if="id === uid">
         <div class="row" @click="modify('昵称', 2333, true)">
           <div class="title">密码</div>
           <div class="cont">********</div>
           <div class="edit"><image src="~static/img/assets/edit.png" /></div>
         </div>
       </div>
-      <div class="exitBtn">退出登录</div>
+      <div class="exitBtn" v-if="id === uid">退出登录</div>
+      <div class="exitBtn" v-if="id !== uid">删除好友</div>
     </div>
     <!-- -------------------------------------------------------------------------------------------------- -->
     <view
@@ -91,7 +137,7 @@
     >
       <div class="modify-header">
         <div class="modify-header-close" @click="modify">取消</div>
-        <div class="modify-header-title">{{ "modifytitle" }}</div>
+        <div class="modify-header-title">修改</div>
         <div class="modify-header-define" @click="modifySubmit">确定</div>
       </div>
       <div class="modify-main">
@@ -118,6 +164,7 @@
 import UserDetailNav from './childcomponents/UserDetailNav.vue'
 import ImageCropper from 'components/common/ling-imgcropper/ling-imgcropper'
 import { request } from 'network/request'
+import { formatDate } from 'common/js/utils'
 export default { 
   name: 'UserDetail',
   components: { 
@@ -135,20 +182,11 @@ export default {
       myname: '',
       markname: '',
       user: {},
-      //模拟数据
-      fakedataarr: {
-        name: '大伊万',
-        sign: '今天，甚至过去，大多数人都是由自己来设计他们的职业生涯的。无论你正要启程，还是已经奋斗多年，以下内容都会对您的职业生涯有所助益。',
-        register: new Date(),
-        sex: '男',
-        birth: '1997-10-10',
-        tell: '34232543232',
-        mall: 'shckjhe@nl.com'
-      },
       sexpickerarray: ['男', '女', '未知'],
       sexpickerindex: 0,
       date: currentDate,
       tempFilePath: "",
+      headimg: '',
       cropFilePath: "../../static/img/user/7.png",
       ispwd1: '',
       pwd: '',
@@ -156,7 +194,7 @@ export default {
       ismodify: false,
       animationData: {},
       widheight: '',
-      modifytitle: ''
+      modifytitle: '',
     }
   },
   computed: {
@@ -165,6 +203,12 @@ export default {
     },
     endDate() {
       return this.getDate('end');
+    },
+  },
+  filters: {
+    showDate: function(e) {
+      const date = new Date(e)
+      return formatDate(date, "yyyy-MM-dd hh:mm")
     }
   },
   onLoad(e) {
@@ -205,14 +249,16 @@ export default {
         let status = res.data.status
         if (status === 200) {
           let result = res.data.result
-          result.imgurl = this.serverUrl + result.imgurl;
-          if (typeof(result.explain)) {
-            result.explain = '这个人很懒，什么都没有留下'
+          this.cropFilePath = this.serverUrl + result.imgurl;
+          if (result.explain == undefined) result.explain = '这个人很懒，什么都没有留下'
+          if (result.birth == undefined) this.date = '未知'
+          else {
+            this.date = formatDate(result.birth, 'yyyy-MM-dd')
           }
-          if (this.markname.length === 0) {
-            this.markname = result.name
-          }
-          //this.sexJudge(result.sex);
+          if (result.phone == undefined) result.phone = '未知'
+          if (this.markname.length === 0) this.markname = result.name
+          
+          this.sexJudge(result.sex);
           this.user = result
           console.log(this.user);
         } else if (status === 500) {
@@ -225,8 +271,12 @@ export default {
           uni.navigateTo({ url: '/pages/signin/Signin?name=' + this.myname })
         }
       })
-
     },
+    sexJudge (e) {
+      if (e === 'female') this.index = 1
+      else if (e === 'male') this.index = 0
+      else this.index = 2
+     },
     getMarkname () {
       if (this.id !== this.uid) {
         request({
@@ -242,7 +292,7 @@ export default {
           let status = res.data.status
           if (status === 200) {
             let result = res.data.result
-            if(!typeof(result.markname)) this.markname = result.markname
+            if(!typeof(result.markname) != undefined) this.markname = result.markname
           } else if (status === 300) {
             uni.navigateTo({ url: '/pages/signin/Signin?name=' + this.myname })
           } else if(status === 500) {
@@ -259,10 +309,16 @@ export default {
 
     bindPickerChange: function(e) {
       console.log('picker发送选择改变，携带值为', e.target.value)
-      this.index = e.target.value
+      this.sexpickerindex = e.target.value
+      let sex = ''
+      if (this.sexpickerindex === 0) sex = 'male'
+      else if(this.sexpickerindex === 1) sex = 'female'
+      else sex = 'asexual' 
+      this.update(sex, 'sex', undefined)
     },
     bindDateChange: function(e) {
       this.date = e.target.value
+      this.update(this.date, 'birth', undefined)
     },
     getDate(type) {
       const date = new Date();
@@ -294,30 +350,62 @@ export default {
     confirm(e) {
       this.tempFilePath = "";
       this.cropFilePath = e.detail.tempFilePath;
-
-      // #ifdef APP-PLUS||MP
-      //除了H5端返回base64数据外，其他端都是返回临时地址，所以你要判断base64还是临时文件名，（用条件编译APP-PLUS||MP执行编译。）
-      //按我这里是先上传裁剪得来的临时文件地址然后得到临时文件名，
-      //待活你要判断是H5还是其他端传给后端类型参数让后端判断执行何种情况代码就OK了
+      this.headimg = e.detail.tempFilePath
 
       uni.uploadFile({
-        url: "后端地址上传图片接口地址",
-        filePath: this.cropFilePath,
-        name: "file",
-        fileType: "image",
-        //formData:{},传递参数
+        url: this.serverUrl + '/files/upload',
+        fileType: 'image',
+        filePath: this.headimg,
+        name: 'file',
+        formData: {
+          url: 'user',
+          name: this.uid,
+          token: this.token
+        },
         success: (uploadFileRes) => {
-          var backstr = uploadFileRes.data;
-          //自定义操作
+          let backstr = uploadFileRes.data
+          console.log(backstr);
+          //修改本地存储
+          try {
+            uni.setStorageSync('user', {'id': this.uid, 'name': this.myname, 'imgurl': backstr, 'token': token})
+          } catch (e) {
+            // console.log('数据存储出错');
+          }
+          this.update(backstr, 'imgurl', undefined)
         },
-
-        fail(e) {
-          console.log("this is errormes " + e.message);
-        },
-      });
-
-      // #endif
+        fail: (error) => {}
+      })
     },
+    update (e, t, p) {
+      request({
+        url: '/user/update',
+        data: {
+          id: this.uid,
+          data: e,
+          type: t,
+          password: p,
+          token: this.token
+        },
+        method: 'post'
+      }).then((res) => {
+        console.log(res);
+      })
+    },
+    updateFriendMarkname () {
+      request({
+        url: '/user/markname',
+        data: {
+          uid: this.uid,
+          fid: this.id,
+          token: this.token,
+          name: this.modifymaintext
+        },
+        method: 'post'
+      }).then((res) => {
+        console.log(res);
+      })
+    },
+
     cancel() {
       console.log("canceled");
       this.tempFilePath = "";
@@ -334,12 +422,14 @@ export default {
     },
     //修改项弹窗动画
     modify (type, data, ispwd) {
-      if (ispwd) {
+      if (ispwd) { 
         this.ispwd1 = 'block'
+        this.ispwd = ispwd
       } else {
         this.ispwd1 = 'none'
+        this.ispwd = undefined
+        this.pwd = undefined
       }
-      this.ispwd = ispwd
       this.modifytitle = type
       this.modifymaintext = data
       this.ismodify = !this.ismodify
@@ -355,6 +445,18 @@ export default {
       this.animationData = animation.export()
     },
     modifySubmit() {
+      if (this.modifytitle == 'markname' && this.modifymaintext.length > 0) {
+        this.updateFriendMarkname()
+        this.markname = this.modifymaintext
+        this.modify()
+        return
+      }
+
+      if (this.modifymaintext.length > 0) {
+        let type = this.modifytitle
+        this.update(this.modifymaintext, type, this.ispwd )
+        this.user[type] = this.modifymaintext
+      }
       this.modify()
     }
   },
