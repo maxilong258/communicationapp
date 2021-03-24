@@ -1,6 +1,6 @@
 <template>
   <div class="chat-page">
-    <chat-nav></chat-nav>
+    <chat-nav :fname="fname"></chat-nav>
     <scroll-view
       scroll-y="true"
       :scroll-into-view="scrolltoview"
@@ -19,26 +19,26 @@
           class="chat-ls"
           v-for="(item, index) in msgs"
           :key="index"
-          :id="'msg' + item.tip"
+          :id="'msg' + item.id"
         >
           <div class="chat-time" v-if="item.time != ''">
             {{ changeTime(item.time) }}
           </div>
-          <div class="msg-m msg-left" v-if="item.id != 'b'">
-            <image :src="item.imgUrl" class="user-img" />
-            <div class="message" v-if="item.types === 0">
+          <div class="msg-m msg-left" v-if="item.fromId != storagevalue.id">
+            <image :src="item.imgurl" class="user-img" />
+            <div class="message" v-if="item.types == 0">
               <div class="msg-text">
                 {{ item.message }}
               </div>
             </div>
             <div
               class="message"
-              v-if="item.types === 1"
+              v-if="item.types == 1"
               @click="previewImg(item.massage)"
             >
               <image :src="item.message" mode="widthFix" class="msg-img" />
             </div>
-            <div class="message" v-if="item.types === 2">
+            <div class="message" v-if="item.types == 2">
               <div
                 class="msg-text voice"
                 :style="{ width: item.message.time * 4 + 'px' }"
@@ -49,21 +49,21 @@
               </div>
             </div>
           </div>
-          <div class="msg-m msg-right" v-if="item.id == 'b'">
-            <image :src="item.imgUrl" class="user-img" />
-            <div class="message" v-if="item.types === 0">
+          <div class="msg-m msg-right" v-if="item.fromId == storagevalue.id">
+            <image :src="item.imgurl" class="user-img" />
+            <div class="message" v-if="item.types == 0">
               <div class="msg-text">
                 {{ item.message }}
               </div>
             </div>
             <div
               class="message"
-              v-if="item.types === 1"
+              v-if="item.types == 1"
               @click="previewImg(item.message)"
             >
               <image :src="item.message" mode="widthFix" class="msg-img" />
             </div>
-            <div class="message" v-if="item.types === 2">
+            <div class="message" v-if="item.types == 2">
               <div
                 class="msg-text voice"
                 :style="{ width: item.message.time * 4 + 'px' }"
@@ -87,6 +87,7 @@ import ChatBottom from './childcomponents/ChatBottom'
 import fakedata from 'common/data/fakedata'
 //import { formatDate } from 'common/js/utils'
 import dateHandler from 'common/js/dateHandler'
+import { request } from 'network/request'
 
 export default {
   name: 'Chat',
@@ -96,63 +97,137 @@ export default {
   },
   data() {
     return {
+      storagevalue: {},
+      fid: '',
+      fname: '',
+      fimgurl: '',
       inputh: 60,
       msgs: [],
       imgmsgs:[],
       scrolltoview: '',
-      oldTime: new Date(),
+      oldTime: 0,
       animationData: {},
-      nowpage: 0,
+      nowpage: 0,              //页码
+      pagesize: 10,            //一页条数
       loading: '',
       isloading: true,
       beginloading: false
     }
   },
-  onLoad() {
+  onLoad(e) {
+    this.fid = e.id
+    this.fname = e.name
+    this.fimgurl = e.img
+    this.getStorages()
     this.getMsg(this.nowpage)
     //this.nextPage()
+    setTimeout(() => {
+      console.log(this.fid);
+      console.log(this.fname);
+      console.log(this.fimgurl);
+    }, 3939)
   },
  
 
   methods: {
+    getStorages() {
+      try {
+        const value = uni.getStorageSync('user')
+        if (value) {
+          this.storagevalue = value
+        } else {
+          uni.navigateTo({ url: '/pages/signin/Signin' })
+        }
+        console.log(this.storagevalue);
+      } catch (e) {
+          
+      }
+    },
     changeTime(date){
       return dateHandler.dateTime(date)
     },
-    getMsg(page) {
-      this.nowpage++
-      const msg = fakedata.fmessage()
-      let maxpages = msg.length
-      if (msg.length > (page + 1) * 10){
-        maxpages = (page + 1) * 10
-      } else {
-        this.nowpage = -1
-      }
-
-      for (var i = page*10; i < maxpages; i++) {  
-        if (i < msg.length - 1) {
-          let t = dateHandler.spaceTime(this.oldTime, msg[i].time)
-          if(t) {
-            this.oldTime = t
+    getMsg () {
+      request({
+        url: '/chat/msg',
+        data: {
+          uid: this.storagevalue.id,
+          fid: this.fid,
+          nowPage: this.nowpage,
+          pageSize: this.pagesize,
+          token: this.storagevalue.token
+        },
+        method: 'post'
+      }).then((res) => {
+        console.log(res);
+        let status = res.data.status
+        if (status === 200) {
+          let result = res.data.result
+          result.reverse()
+          let oldtime = result[0].time
+          let imgarr = []
+          for (let item of result) item.imgurl = this.serverUrl + item.imgurl
+          for (let i = 1; i < result.length; i++) {
+            if (i < result.length - 1) {
+              let t = dateHandler.spaceTime(oldtime, result[i].time)
+              if (t) oldtime = t
+              result[i].time = t
+            }
+            if (this.nowpage == 0) {
+              if (result[i].time > this.oldTime) this.oldTime = result[i].time
+            }
+            if(result.types === 1) {
+              result[i].message = this.serverUrl + result[i].message
+              imgarr.push(result[i].message)
+              
+            }
+            //this.msgs.unshift(result[i]) 
           }
-          msg[i].time = t
-        }
-        
-        //拼接图片地址
-        msg[i].imgUrl = '../../static/img/user/' + msg[i].imgUrl
-        if (msg[i].types === 1) {
-          msg[i].message = '../../static/img/user/' + msg[i].message 
-          this.imgmsgs.unshift(msg[i].message)
-        }  
-        this.msgs.unshift(msg[i])  
-      }
-      
-      this.$nextTick(function(){
-        this.scrolltoview = 'msg' + this.msgs[maxpages - page * 10 - 1].tip
+          this.msgs = result.concat(this.msgs)
+          this.imgmsgs = imgarr.concat(this.imgmsgs)
+          if(result.length === 10) this.nowpage++
+          else this.nowpage = -1
+          this.$nextTick(function(){
+            this.scrolltoview = 'msg' + this.msgs[result.length - 1].id
+          })
+          clearInterval(this.loading)
+          this.isloading = false
+          this.beginloading = false
+        }   
       })
-      clearInterval(this.loading)
-      this.isloading = false
-      this.beginloading = false
+      
     },
+    // getMsg(page) {
+    //   this.nowpage++
+    //   const msg = fakedata.fmessage()
+    //   let maxpages = msg.length
+    //   if (msg.length > (page + 1) * 10){
+    //     maxpages = (page + 1) * 10
+    //   } else {
+    //     this.nowpage = -1
+    //   }
+    //   for (var i = page*10; i < maxpages; i++) {  
+    //     if (i < msg.length - 1) {
+    //       let t = dateHandler.spaceTime(this.oldTime, msg[i].time)
+    //       if(t) {
+    //         this.oldTime = t
+    //       }
+    //       msg[i].time = t
+    //     }    
+    //     //拼接图片地址
+    //     msg[i].imgUrl = '../../static/img/user/' + msg[i].imgUrl
+    //     if (msg[i].types === 1) {
+    //       msg[i].message = '../../static/img/user/' + msg[i].message 
+    //       this.imgmsgs.unshift(msg[i].message)
+    //     }  
+    //     this.msgs.unshift(msg[i])  
+    //   }    
+    //   this.$nextTick(function(){
+    //     this.scrolltoview = 'msg' + this.msgs[maxpages - page * 10 - 1].tip
+    //   })
+    //   clearInterval(this.loading)
+    //   this.isloading = false
+    //   this.beginloading = false
+    // },
     nextPage () {
       if (this.nowpage > 0 && !this.beginloading) {
         this.isloading = true
@@ -205,21 +280,29 @@ export default {
         console.log('开始播放');
       })
     },
-    inputs(e) {
+    receiveMsg(e, id, img, tip) {
+      //tip == 0 表示自己发的  tip == 1
       let len = this.msgs.length
+      let nowTime = new Date()
+      let t = dateHandler.spaceTime(this.oldTime, nowTime)
+      if (t) this.oldTime = t 
       let data = {
-        id: 'b',
-        imgUrl: '../../static/img/user/3.png',
+        fromId: id,
+        imgurl: img,
         message: e.message,
         types: e.types,
-        time: new Date(),
-        tip: len
+        time: nowTime,
+        id: len
       }
       this.msgs.push(data),
       this.$nextTick(() => {
         this.scrolltoview = 'msg'+ len
       })
-      if(e.types === 1) this.imgmsgs.push(e.message)
+      if(e.types == 1) this.imgmsgs.push(e.message)
+    },
+
+    inputs (e) {
+      this.receiveMsg(e, this.storagevalue.id, this.serverUrl + this.storagevalue.imgurl, 0)
     },
     heights(height) {
       this.inputh = height
@@ -239,6 +322,7 @@ export default {
 <style scoped>
 .chat {
   height: 100vh;
+  background-color: #ecf0f1;
 }
 .loading {
   text-align: center;

@@ -1,6 +1,6 @@
 <template>
   <div class="user-detail">
-    <user-detail-nav></user-detail-nav>
+    <user-detail-nav :uid="uid"></user-detail-nav>
     <div class="main">
       <div class="column heads">
         <div class="row head">
@@ -126,7 +126,7 @@
           <div class="edit"><image src="~static/img/assets/edit.png" /></div>
         </div>
       </div>
-      <div class="exitBtn" v-if="id === uid">退出登录</div>
+      <div class="exitBtn" v-if="id === uid" @click="exit">退出登录</div>
       <div class="exitBtn" v-if="id !== uid">删除好友</div>
     </div>
     <!-- -------------------------------------------------------------------------------------------------- -->
@@ -458,6 +458,9 @@ export default {
         this.user[type] = this.modifymaintext
       }
       this.modify()
+    },
+    exit () {
+      uni.navigateTo({ url: '/pages/signin/Signin' })
     }
   },
   

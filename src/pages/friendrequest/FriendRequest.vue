@@ -8,7 +8,7 @@
         :key="index"
       >
         <div class="request-top">
-          <div class="reject btn">拒绝</div>
+          <div class="reject btn" @click="kotowalu(item.id)">拒绝</div>
           <div class="top-img">
             <image :src="item.imgurl" />
           </div>
@@ -16,7 +16,7 @@
         </div>
         <div class="request-center">
           <div class="title">{{ item.name }}</div>
-          <div class="time">{{ item.lastTime }}</div>
+          <div class="time">{{ item.lastTime | showDate }}</div>
         </div>
         <div class="notic">
           <text>留言：</text>
@@ -30,6 +30,8 @@
 <script>
 import FriendRequestNav from './childcomponents/FriendRequestNav.vue'
 import { request } from 'network/request'
+import { formatDate } from 'common/js/utils'
+
 export default {
   name: 'FriendRequest',
   components: {
@@ -44,6 +46,12 @@ export default {
   onLoad () {
     this.getStorages()
     this.getFriends()
+  },
+  filters: {
+    showDate (value) {
+      const date = new Date(value)
+      return formatDate(date, 'yyyy-MM-dd hh:mm')
+    } 
   },
   methods: {
     getStorages() {
@@ -69,27 +77,34 @@ export default {
         },
         method: 'post'
       }).then((res) => {
+        console.log(res);
+        let result = res.data.result
         if (res.data.status === 200) {
-          for (let item of res.data.result) {
-            item.imgurl = this.serverUrl + item.imgurl
-            request({
-              url: 'index/getlastmsg',
-              data: {
-                uid: this.storagevalue.id,
-                fid: item.id,
-                token: this.storagevalue.token
-              },
-              method: 'post'
-            }).then((res) => {
-              if(res.data.status === 200) {
-                item.message =  res.data.result.message
-                this.requestingfriends.push(item)
-                console.log(this.requestingfriends);
-              }   
-            })
-          }   
+          for (let i = 0; i < result.length; i++) {
+            result[i].imgurl = this.serverUrl + result[i].imgurl
+            this.getMessage(result, i)
+          }
+          this.requestingfriends = result   
         }   
       }) 
+    },
+    getMessage (arr, i) {
+      request({
+        url: 'index/getlastmsg',
+        data: {
+          uid: this.storagevalue.id,
+          fid: arr[i].id,
+          token: this.storagevalue.token
+        },
+        method: 'post'
+      }).then((res) => {
+        if(res.data.status === 200) {
+          let result = res.data.result
+          let e = arr[i]
+          e.message = result.message
+          arr.splice(i, 1, e)
+        }   
+      })
     },
     agree (fid) {
       request({
@@ -102,10 +117,31 @@ export default {
         method: 'post'
       }).then((res) => {
         console.log(res);
-        const a = this.requestingfriends.filter((item) => {
-          return this.requestingfriends.id !== fid
-        })
-        console.log(a);
+        let status = res.data.status
+        if (status === 200) {
+          for (let i = 0; i < this.requestingfriends.length; i++) {
+            this.requestingfriends.splice(i, 1)
+          }
+        } 
+      })
+    },
+    kotowalu (fid) {
+      request({
+        url: '/friend/deletefriend',
+        data: {
+          uid: this.storagevalue.id,
+          fid: fid,
+          token: this.storagevalue.token
+        },
+        method: 'post'
+      }).then((res) => {
+        console.log(res);
+        let status = res.data.status
+        if (status === 200) {
+          for (let i = 0; i < this.requestingfriends.length; i++) {
+            this.requestingfriends.splice(i, 1)
+          }
+        }   
       })
     }
   }

@@ -30,3 +30,32 @@ export function formatDate(date, fmt) {
 function padLeftZero(str) {
   return ('00' + str).substr(str.length);
 }
+
+export function sort(arr, obj, tip) {
+  let s
+  //降序排序
+  if (tip === 0) {
+    for (let i = 1; i < arr.length; i++) {
+      for (let j = i; j > 0; j--) {
+        if (arr[i][obj] > arr[j - 1][obj]) {
+          s = arr[j]
+          arr[j] = arr[j - 1]
+          arr[j - 1] = s
+        }
+      }
+    }
+    return arr
+  } else if (tip === 1) {
+    //升序排序
+    for (let i = 1; i < arr.length; i++) {
+      for (let j = i; j > 0; j--) {
+        if (arr[i][obj] < arr[j - 1][obj]) {
+          s = arr[j]
+          arr[j] = arr[j - 1]
+          arr[j - 1] = s
+        }
+      }
+    }
+    return arr
+  }
+}

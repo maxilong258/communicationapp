@@ -3,7 +3,8 @@
     {
       "path": "pages/index/Index",
       "style": {
-        "navigationStyle": "custom"
+        "navigationStyle": "custom",
+        "enablePullDownRefresh": true
       }
     },
     {

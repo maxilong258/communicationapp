@@ -4,7 +4,7 @@
       <div slot="left" class="search-div">
         <input
           type="search"
-          placeholder="搜索用户和群"
+          placeholder="搜索用户"
           class="search"
           placeholder-style="color:#999;font-weight:400;"
           @input="search"

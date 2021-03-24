@@ -83,10 +83,14 @@ export default {
     }
   },
   onLoad (e) {
+    this.user = {}
     this.id = e.id
     this.getStorages()
     this.getUser()
     this.friendJudge()
+    setTimeout(() => {
+      console.log(this.user); 
+    }, 3939);
   },
   mounted() {
     this.getElementStyle()
@@ -121,7 +125,7 @@ export default {
         if (status === 200) {
           let result = res.data.result
           result.imgurl = this.serverUrl + result.imgurl
-          if (typeof(res.explain)) result.explain = '这个人很懒，什么都没有留下'
+          if ( result.explain == '') result.explain = '这个人很懒，什么都没有留下'
           if ( this.markname.length === 0 ) this.markname = result.name
           this.sexJudge(result.sex)
           this.user = result
@@ -140,11 +144,11 @@ export default {
       if(e == 'female') {
         this.seximg = '../../static/img/assets/female.png'
         this.sexbg = 'rgba(255, 93, 91, 1)'
-      } else if (e === 'male') {
+      } else if (e == 'male') {
         this.seximg = '../../static/img/assets/male.png'
-        this.sexbg = '#ooafc0'
-      } else if (e === "asexual") {
-        this.sexbg = 'black'
+        this.sexbg = 'rgba(0, 175, 192, 1)'
+      } else if (e == "asexual") {
+        this.sexbg = 'rgba(255, 255, 255, 0)'
       }
     },
     friendJudge () {

@@ -23,22 +23,21 @@
             <div class="name" v-html="item.name"></div>
             <div class="email" v-html="item.email"></div>
           </div>
-          <div class="right-btn send" v-if="item.tomodaji === 1">发消息</div>
+          <div
+            class="right-btn send"
+            v-if="item.tomodaji === 1"
+            @click="
+              toChat({ id: item._id, name: item.name, imgurl: item.imgUrl })
+            "
+          >
+            发消息
+          </div>
           <navigator
             :url="'/pages/userhome/UserHome?id=' + item._id"
             hover-class="none"
           >
             <div class="right-btn add" v-if="item.tomodaji === 0">加好友</div>
           </navigator>
-        </div>
-        <div class="title">群组</div>
-        <div class="list user">
-          <image src="~static/img/user/1.png" mode="scaleToFill" />
-          <div class="names">
-            <div class="name">湖泊</div>
-            <div class="email">river@nmul.com</div>
-          </div>
-          <div class="right-btn">发送</div>
         </div>
       </div>
     </div>
@@ -60,6 +59,9 @@ export default {
   },
   onLoad() {
     this.getStorages()
+    setTimeout(() => {
+      console.log(this.searchresult);
+    }, 3939)
   },
   methods: {
     getStorages () {
@@ -79,6 +81,9 @@ export default {
       this.searchresult = searchresarr
       console.log(this.searchresult);
     },
+    toChat (data) {
+      uni.navigateTo({ url: '/pages/chat/Chat?id=' + data.id + '&name=' + data.name + '&img=' + data.imgurl })
+    }
   }
 }
 </script>

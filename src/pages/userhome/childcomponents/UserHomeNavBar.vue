@@ -2,7 +2,9 @@
   <div class="user-home-nav-bar">
     <nav-bar-1 class="user-home-nav">
       <div slot="left" class="user-home-nav-left" @click="backOne">
-        <image src="~static/img/assets/back.png" mode="scaleToFill" />
+        <div>
+          <image src="~static/img/assets/back.png" mode="scaleToFill" />
+        </div>
       </div>
       <div
         slot="right"
@@ -10,7 +12,9 @@
         v-if="relation === 0 || relation === 1"
         @click="userDetail"
       >
-        <image src="~static/img/assets/more.png" mode="scaleToFill" />
+        <div>
+          <image src="~static/img/assets/more.png" mode="scaleToFill" />
+        </div>
       </div>
     </nav-bar-1>
   </div>
@@ -47,17 +51,22 @@ export default {
 </script>
 
 <style scoped>
+.user-home-nav-left div {
+  height: 88rpx;
+}
 .user-home-nav-left image {
   height: 52rpx;
   width: 52rpx;
-  margin-top: 24rpx;
+  margin-top: 21rpx;
   margin-left: 30rpx;
 }
-
+.user-home-nav-right div {
+  height: 88rpx;
+}
 .user-home-nav-right image {
   height: 52rpx;
   width: 52rpx;
-  margin-top: 24rpx;
+  margin-top: 21rpx;
   margin-left: 32rpx;
 }
 </style>

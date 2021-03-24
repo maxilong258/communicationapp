@@ -10,13 +10,17 @@
         </navigator>
       </div>
       <div slot="center" class="nav-bar-center">
-        <image src="~static/img/main/logooo.png" mode="scaleToFill" />
+        <div class="logo-wrapper">
+          <image src="~static/img/main/logooo.png" mode="scaleToFill" />
+        </div>
       </div>
       <div slot="right" class="nav-bar-right">
         <div class="search" @click="toSearchPage">
-          <div class="iconfont icon-search"></div>
+          <image src="~static/img/assets/search1.png" mode="scaleToFill" />
         </div>
-        <div class="add"><div class="iconfont icon-Add"></div></div>
+        <div class="add" @click="toRequestPage">
+          <image src="~static/img/assets/requests.png" mode="scaleToFill" />
+        </div>
       </div>
     </nav-bar>
   </div>
@@ -46,6 +50,9 @@ export default {
   methods: {
     toSearchPage() {
       uni.navigateTo({ url: '/pages/search/Search' })
+    },
+    toRequestPage () {
+      uni.navigateTo({ url: '/pages/friendrequest/FriendRequest' })
     }
   }
 };
@@ -69,14 +76,21 @@ export default {
 }
 
 .nav-bar-left {
+  padding-right: 70rpx;
+}
+.nav-bar-left navigator {
   height: 88rpx;
 }
 
 .nav-bar-left image {
-  border-radius: 10%;
-  height: 60rpx;
-  width: 60rpx;
-  margin: 18rpx 39rpx;
+  width: 68rpx;
+  height: 68rpx;
+  border-radius: 8rpx;
+  margin-top: 10rpx;
+  margin-left: 30rpx;
+}
+.nav-bar-center div {
+  height: 88rpx;
 }
 .nav-bar-center image {
   padding-top: 20rpx;
@@ -90,13 +104,20 @@ export default {
 }
 .nav-bar-right div {
   flex: 1;
+  text-align: center;
+  align-items: center;
+  height: 88rpx;
 }
-.icon-search {
-  margin: 8rpx 10rpx 0 20rpx;
-  font-size: 39rpx;
+.search image {
+  width: 50rpx;
+  height: 50rpx;
+  border-radius: 8rpx;
+  padding-top: 20rpx;
 }
-.icon-Add {
-  font-size: 47rpx;
-  margin: 8rpx 10rpx 0 20rpx;
+.add image {
+  width: 50rpx;
+  height: 50rpx;
+  border-radius: 8rpx;
+  padding-top: 20rpx;
 }
 </style>

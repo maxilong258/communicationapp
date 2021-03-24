@@ -6,6 +6,7 @@
 </template>
 
 <script>
+import myfun from 'common/js/dateHandler'
 export default {
   name: 'Test',
   data() {
@@ -16,6 +17,7 @@ export default {
   },
   methods: {
     upload () {
+      const url = myfun.fileName(new Date)
       uni.chooseImage({
         count: 9,
         sizeType: ['original', 'compressed'],
@@ -24,16 +26,17 @@ export default {
         const tempFilePaths = chooseImageRes.tempFilePaths;
         for (let i = 0; i < tempFilePaths.length; i++) {
           const uploadTask = uni.uploadFile({
-            url: 'http://192.168.1.103:2333/files/upload', //仅为示例，非真实的接口地址
+            url: this.serverUrl + '/files/upload', //仅为示例，非真实的接口地址
             filePath: tempFilePaths[i],
             name: 'file',
             formData: {
-              url: 'user',
+              url: url,
               name: new Date().getTime() + this.id + i
             },
             success: (uploadFileRes) => {
-              let path = 'user/' + uploadFileRes.data
-              this.img.push('http://192.168.1.103:2333/' + path)
+              console.log(uploadFileRes);
+              let path = this.serverUrl + uploadFileRes.data
+              this.img.push(path)
               //console.log(uploadFileRes.data);
             }
           });

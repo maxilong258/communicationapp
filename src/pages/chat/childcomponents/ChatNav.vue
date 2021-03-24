@@ -5,12 +5,12 @@
         <image src="~static/img/assets/back.png" mode="scaleToFill" />
       </div>
       <div slot="center">
-        <div class="title">开心就好</div>
+        <div class="title">{{ fname }}</div>
       </div>
       <div slot="right">
-        <div class="group-img">
+        <!-- <div class="group-img">
           <image src="~static/img/user/3.png" />
-        </div>
+        </div> -->
       </div>
     </nav-bar-1>
   </div>
@@ -22,6 +22,14 @@ export default {
   name: 'ChatNav',
   components: {
     NavBar1
+  },
+  props: {
+    fname: {
+      type: String,
+      default() {
+        return ''
+      }
+    }
   },
   methods: {
     backOne() {

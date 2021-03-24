@@ -45,10 +45,20 @@ export default {
     now = new Date(now)
     var told = old.getTime();
     var tnow = now.getTime();
-    if (told > (tnow + 1000 * 60 * 5)) {
+    if (tnow > (told + 1000 * 60)) {
       return now
     } else {
       return ''
     }
+  },
+  //资源文件夹按时间命名
+  fileName(e) {
+    let old = new Date(e)
+    let y = old.getFullYear()
+    let M = old.getMonth() + 1
+    let d = old.getDate()
+    if (M < 10) M = '0' + M
+    if (d < 10) d = '0' + d
+    return y + M + d
   }
 }

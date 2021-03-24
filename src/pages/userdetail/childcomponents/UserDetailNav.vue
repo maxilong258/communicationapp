@@ -16,7 +16,18 @@ export default {
   components: {
     NavBar1
   },
+  props: {
+    uid: {
+      type: String,
+      default() {
+        return ''
+      }
+    }
+  },
   methods: {
+    // backOne () {
+    //   uni.navigateTo({ url: '/pages/userhome/UserHome?id=' + this.uid })
+    // }
     backOne () {
       uni.navigateBack({ delta: 1 })
     }
@@ -36,10 +47,14 @@ export default {
   line-height: 88rpx;
 }
 
+.user-detail-nav div {
+  height: 88rpx;
+}
+
 .user-detail-nav-left image {
-  height: 50rpx;
-  width: 50rpx;
-  margin-top: 18rpx;
-  margin-left: 20rpx;
+  height: 52rpx;
+  width: 52rpx;
+  margin-top: 21rpx;
+  margin-left: 30rpx;
 }
 </style>

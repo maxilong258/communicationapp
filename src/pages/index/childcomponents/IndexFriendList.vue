@@ -5,15 +5,16 @@
       v-for="(item, index) in friends"
       :key="index"
       hover-class="friend-click"
+      @click="toChat(item)"
     >
       <div class="friend-list-left">
         <text class="tip" v-if="item.tip > 0">{{ item.tip }}</text>
-        <image :src="item.imgUrl" mode="scaleToFill" />
+        <image :src="item.imgurl" mode="scaleToFill" />
       </div>
       <div class="friend-list-right">
         <div class="message-top">
           <div class="name">{{ item.name }}</div>
-          <div class="time">{{ showTime(item.time) }}</div>
+          <div class="time">{{ showTime(item.lastTime) }}</div>
         </div>
         <div class="message-content">
           {{ item.message }}
@@ -41,8 +42,11 @@ export default {
   methods: {
     showTime(date) {
       return dateHandler.dateTime(date);
+    },
+    toChat (data) {
+      uni.navigateTo({ url: '/pages/chat/Chat?id=' + data.id + '&name=' + data.name + '&img=' + data.imgurl })
     }
-  }
+  },
 };
 </script>
 
