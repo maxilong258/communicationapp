@@ -19,7 +19,16 @@
           <image src="~static/img/assets/search1.png" mode="scaleToFill" />
         </div>
         <div class="add" @click="toRequestPage">
-          <image src="~static/img/assets/requests.png" mode="scaleToFill" />
+          <image
+            src="~static/img/assets/requests.png"
+            mode="scaleToFill"
+            v-if="haveFriendRequest === false"
+          />
+          <image
+            src="~static/img/assets/requesting.png"
+            mode="scaleToFill"
+            v-if="haveFriendRequest === true"
+          />
         </div>
       </div>
     </nav-bar>
@@ -44,6 +53,12 @@ export default {
       type: String,
       default() {
         return ''
+      }
+    },
+    haveFriendRequest: {
+      type: Boolean,
+      default () {
+        return false
       }
     }
   },

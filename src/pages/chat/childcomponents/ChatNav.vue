@@ -32,9 +32,13 @@ export default {
     }
   },
   methods: {
+    // backOne() {
+    //   uni.navigateBack({ delta: 1 })
+    // }
     backOne() {
-      uni.navigateBack({ delta: 1 })
+      uni.navigateTo({ url: '/pages/index/Index' })
     }
+    
   }
 }
 </script>

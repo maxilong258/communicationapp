@@ -88,12 +88,13 @@ export default {
     this.getStorages()
     this.getUser()
     this.friendJudge()
-    setTimeout(() => {
-      console.log(this.user); 
-    }, 3939);
+  },
+  onShow() {
+    
   },
   mounted() {
     this.getElementStyle()
+    //location.reload()
   },
   methods: {
     getStorages () {
@@ -120,7 +121,6 @@ export default {
         },
         method: 'post'
       }).then((res) => {
-        console.log(res);
         let status = res.data.status
         if (status === 200) {
           let result = res.data.result
@@ -205,8 +205,6 @@ export default {
     getElementStyle () {
       const query = uni.createSelectorQuery().in(this);
       query.select('.bg').boundingClientRect(data => {
-        console.log("得到布局位置信息" + JSON.stringify(data));
-        console.log("节点离页面顶部的距离为" + data.top);
         this.addHeight = data.height-239
       }).exec();
     },

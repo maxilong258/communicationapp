@@ -1,6 +1,10 @@
 <template>
   <div class="index">
-    <index-nav-bar :imgurl="imgurl" :uid="uid"></index-nav-bar>
+    <index-nav-bar
+      :imgurl="imgurl"
+      :uid="uid"
+      :haveFriendRequest="haveFriendRequest"
+    ></index-nav-bar>
     <div class="home-content">
       <index-friend-list :friends="friends"></index-friend-list>
     </div>
@@ -26,23 +30,78 @@ export default {
       friends: [],
       uid: '',
       imgurl: '',
-      token: ''
+      token: '',
+      haveFriendRequest: false
     };
   },
   onLoad () {
-    this.imgurl = ''
+    // let i = 0
+    //if(i == 0) location.reload()
+    this.friends = []
     this.getStorages()
     this.getFriends()
+    this.join(this.uid)
+    this.receiveSocketMsg()
+    this.getRequestingFriends()
+    // setTimeout(() => {
+    //   console.log(this.friends);
+    // }, 3939)
+  },
+  onShow () {
+   // uni.startPullDownRefresh()
   },
   onPullDownRefresh () {
+    location.reload()
     this.friends = []
-    this.getStorages(),
+    this.getStorages()
     this.getFriends()
-    setTimeout((res) => {
+    this.getRequestingFriends()
+    setTimeout(() => {
       uni.stopPullDownRefresh()
-    }, 1039)
+    }, 1039)  
   },
   methods: {
+    join (uid) {
+      this.socket.emit('login', uid)
+    },
+    
+    receiveSocketMsg () {
+      this.socket.on('msg', (msg, fromid) => {
+        let newmsg = ''
+        if (msg.types == 0) newmsg = msg.message 
+        else if (msg.types == 1) newmsg = '[图片]'
+        else if (msg.types == 2) newmsg = '[语音]'
+        else if (msg.types == 3) newmsg = '[位置]'
+        for (let i = 0; i < this.friends.length; i++) {
+          if (this.friends[i].id == fromid) {
+            let e = this.friends[i]
+            e.lastTime = new Date()
+            e.message = newmsg
+            e.tip++
+            this.friends.splice(i, 1)
+            this.friends.unshift(e)
+            console.log(this.friends);
+          }
+        } 
+      })
+    },
+    getRequestingFriends () {
+      request({
+        url: 'index/getfriend',
+        data: {
+          uid: this.uid,
+          state: 1,
+          token: this.token
+        },
+        method: 'post'
+      }).then((res) => {
+        let result = res.data.result
+        if (res.data.status === 200) {
+          if (result.length > 0) this.haveFriendRequest = true
+        }   
+      }) 
+    },
+
     getFriends() {
       request({
         url: '/index/getfriend',
@@ -53,7 +112,6 @@ export default {
         },
         method: 'post'
       }).then((res) => {
-        console.log(res);
         let status = res.data.status
         if (status === 200) {
           let result = res.data.result
@@ -81,7 +139,6 @@ export default {
         },
         method: 'post'
       }).then((res) => {
-        console.log(res)
         let status = res.data.status
         if (status === 200) {
           let result = res.data.result
@@ -104,7 +161,6 @@ export default {
         },
         method: 'post'
       }).then((res) => {
-        console.log(res);
         let status = res.data.status
         if (status === 200) {
           let result = res.data.result

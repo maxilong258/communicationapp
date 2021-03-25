@@ -36,9 +36,6 @@ export default {
       }
     }
   },
-  mounted() {
-    console.log(this.friends);
-  },
   methods: {
     showTime(date) {
       return dateHandler.dateTime(date);

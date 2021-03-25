@@ -26,7 +26,7 @@ export default {
   },
   methods: {
     // backOne () {
-    //   uni.navigateTo({ url: '/pages/userhome/UserHome?id=' + this.uid })
+    //   uni.navigateTo({ url: '/pages/index/Index' })
     // }
     backOne () {
       uni.navigateBack({ delta: 1 })

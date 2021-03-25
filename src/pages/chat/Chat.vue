@@ -84,8 +84,6 @@
 <script>
 import ChatNav from './childcomponents/ChatNav'
 import ChatBottom from './childcomponents/ChatBottom'
-import fakedata from 'common/data/fakedata'
-//import { formatDate } from 'common/js/utils'
 import dateHandler from 'common/js/dateHandler'
 import { request } from 'network/request'
 
@@ -108,7 +106,7 @@ export default {
       oldTime: 0,
       animationData: {},
       nowpage: 0,              //页码
-      pagesize: 10,            //一页条数
+      pagesize: 39,            //一页条数
       loading: '',
       isloading: true,
       beginloading: false
@@ -120,16 +118,35 @@ export default {
     this.fimgurl = e.img
     this.getStorages()
     this.getMsg(this.nowpage)
-    //this.nextPage()
-    setTimeout(() => {
-      console.log(this.fid);
-      console.log(this.fname);
-      console.log(this.fimgurl);
-    }, 3939)
+    this.receiveSocketMsg()
+    //this.updateMessagestate()
+    this.nextPage()
   },
  
 
   methods: {
+    // updateMessagestate () {
+    //   request({
+    //     url: '/chat/updatemsg',
+    //     data: {
+    //       uid: this.storagevalue.id,
+    //       fid: this.fid
+    //     },
+    //     method: 'post'
+    //   }).then((res) => {
+    //     console.log(res);
+    //   })
+    //   request({
+    //     url: '/chat/updatemsg',
+    //     data: {
+    //       uid: this.fid,
+    //       fid: this.storagevalue.id,
+    //     },
+    //     method: 'post'
+    //   }).then((res) => {
+    //     console.log(res);
+    //   })
+    // },
     getStorages() {
       try {
         const value = uni.getStorageSync('user')
@@ -138,7 +155,6 @@ export default {
         } else {
           uni.navigateTo({ url: '/pages/signin/Signin' })
         }
-        console.log(this.storagevalue);
       } catch (e) {
           
       }
@@ -158,14 +174,19 @@ export default {
         },
         method: 'post'
       }).then((res) => {
-        console.log(res);
         let status = res.data.status
         if (status === 200) {
           let result = res.data.result
           result.reverse()
           let oldtime = result[0].time
           let imgarr = []
-          for (let item of result) item.imgurl = this.serverUrl + item.imgurl
+          for (let item of result) {
+            item.imgurl = this.serverUrl + item.imgurl
+            if(item.types == 1) {
+              item.message = this.serverUrl + item.message
+              imgarr.push(item.message)
+            }
+          }
           for (let i = 1; i < result.length; i++) {
             if (i < result.length - 1) {
               let t = dateHandler.spaceTime(oldtime, result[i].time)
@@ -175,16 +196,10 @@ export default {
             if (this.nowpage == 0) {
               if (result[i].time > this.oldTime) this.oldTime = result[i].time
             }
-            if(result.types === 1) {
-              result[i].message = this.serverUrl + result[i].message
-              imgarr.push(result[i].message)
-              
-            }
-            //this.msgs.unshift(result[i]) 
           }
           this.msgs = result.concat(this.msgs)
           this.imgmsgs = imgarr.concat(this.imgmsgs)
-          if(result.length === 10) this.nowpage++
+          if(result.length === this.pagesize) this.nowpage++
           else this.nowpage = -1
           this.$nextTick(function(){
             this.scrolltoview = 'msg' + this.msgs[result.length - 1].id
@@ -196,38 +211,6 @@ export default {
       })
       
     },
-    // getMsg(page) {
-    //   this.nowpage++
-    //   const msg = fakedata.fmessage()
-    //   let maxpages = msg.length
-    //   if (msg.length > (page + 1) * 10){
-    //     maxpages = (page + 1) * 10
-    //   } else {
-    //     this.nowpage = -1
-    //   }
-    //   for (var i = page*10; i < maxpages; i++) {  
-    //     if (i < msg.length - 1) {
-    //       let t = dateHandler.spaceTime(this.oldTime, msg[i].time)
-    //       if(t) {
-    //         this.oldTime = t
-    //       }
-    //       msg[i].time = t
-    //     }    
-    //     //拼接图片地址
-    //     msg[i].imgUrl = '../../static/img/user/' + msg[i].imgUrl
-    //     if (msg[i].types === 1) {
-    //       msg[i].message = '../../static/img/user/' + msg[i].message 
-    //       this.imgmsgs.unshift(msg[i].message)
-    //     }  
-    //     this.msgs.unshift(msg[i])  
-    //   }    
-    //   this.$nextTick(function(){
-    //     this.scrolltoview = 'msg' + this.msgs[maxpages - page * 10 - 1].tip
-    //   })
-    //   clearInterval(this.loading)
-    //   this.isloading = false
-    //   this.beginloading = false
-    // },
     nextPage () {
       if (this.nowpage > 0 && !this.beginloading) {
         this.isloading = true
@@ -280,12 +263,39 @@ export default {
         console.log('开始播放');
       })
     },
+    receiveSocketMsg () {
+      this.socket.on('msg', (msg, fromid, tip) => {
+        if (fromid === this.fid && tip === 0) {
+          let len = this.msgs.length
+          let nowTime = new Date()
+          let t = dateHandler.spaceTime(this.oldTime, nowTime)
+          if (t) this.oldTime = t 
+          if (msg.types == 1 || msg.types == 2) msg.message = this.serverUrl + msg.message
+          nowTime = t
+          const data = {
+            fromId: fromid,
+            imgurl: this.fimgurl,
+            message: msg.message,
+            types: msg.types,
+            time: nowTime,
+            id: len
+          }
+          this.msgs.push(data)
+          if (msg.types == 1) this.imgmsgs.push(msg.message)
+          this.$nextTick(() => {
+            this.scrolltoview = 'msg'+ len
+          })
+        }  
+      })
+    },
+
     receiveMsg(e, id, img, tip) {
       //tip == 0 表示自己发的  tip == 1
       let len = this.msgs.length
       let nowTime = new Date()
       let t = dateHandler.spaceTime(this.oldTime, nowTime)
       if (t) this.oldTime = t 
+      nowTime = t
       let data = {
         fromId: id,
         imgurl: img,
@@ -298,9 +308,78 @@ export default {
       this.$nextTick(() => {
         this.scrolltoview = 'msg'+ len
       })
-      if(e.types == 1) this.imgmsgs.push(e.message)
+      if (e.types == 0 || e.types == 3) this.sendSocket(e)
+      if (e.types == 1) {
+        this.imgmsgs.push(e.message)
+        let url = dateHandler.fileName(new Date())
+        const uploadTask = uni.uploadFile({
+          url: this.serverUrl + '/files/upload', //仅为示例，非真实的接口地址
+          filePath: e.message,
+          name: 'file',
+          formData: {
+            url: url,
+            name: new Date().getTime() + this.storagevalue.id + Math.round(Math.random())
+          },
+          success: (uploadFileRes) => {
+            console.log(uploadFileRes);
+            const data = {
+              message: uploadFileRes.data,
+              types: e.types
+            }
+            this.sendSocket(data)
+            //let path = this.serverUrl + uploadFileRes.data
+            // this.img.push(path)
+            //console.log(uploadFileRes.data);
+          }
+        });
+        uploadTask.onProgressUpdate((res) => {
+          // console.log('上传进度' + res.progress);
+          // console.log('已经上传的数据长度' + res.totalBytesSent);
+          // console.log('预期需要上传的数据总长度' + res.totalBytesExpectedToSend);
+          // 测试条件，取消上传任务。
+          // if (res.progress > 50) {
+          //   uploadTask.abort();
+          // }
+        });
+      }
+      if (e.types == 2) {
+        this.imgmsgs.push(e.message)
+        let url = dateHandler.fileName(new Date())
+        const uploadTask = uni.uploadFile({
+          url: this.serverUrl + '/files/upload', //仅为示例，非真实的接口地址
+          filePath: e.message.voice,
+          name: 'file',
+          formData: {
+            url: url,
+            name: new Date().getTime() + this.storagevalue.id + Math.round(Math.random())
+          },
+          success: (uploadFileRes) => {
+            console.log(uploadFileRes);
+            const data = {
+              message: uploadFileRes.data,
+              types: e.types
+            }
+            this.sendSocket(data)
+            //let path = this.serverUrl + uploadFileRes.data
+           // this.img.push(path)
+            //console.log(uploadFileRes.data);
+          }
+        });
+        uploadTask.onProgressUpdate((res) => {
+          // console.log('上传进度' + res.progress);
+          // console.log('已经上传的数据长度' + res.totalBytesSent);
+          // console.log('预期需要上传的数据总长度' + res.totalBytesExpectedToSend);
+          // 测试条件，取消上传任务。
+          // if (res.progress > 50) {
+          //   uploadTask.abort();
+          // }
+        });
+      }
+      
     },
-
+    sendSocket (e) {
+      this.socket.emit('msg', e, this.storagevalue.id, this.fid)
+    },
     inputs (e) {
       this.receiveMsg(e, this.storagevalue.id, this.serverUrl + this.storagevalue.imgurl, 0)
     },
@@ -312,7 +391,7 @@ export default {
       this.scrolltoview = ''
       this.$nextTick(() => {
         let len = this.msgs.length-1
-        this.scrolltoview = 'msg' + this.msgs[len].tip
+        this.scrolltoview = 'msg' + this.msgs[len].id
       })
     }
   }

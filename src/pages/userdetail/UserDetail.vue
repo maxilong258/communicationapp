@@ -217,6 +217,7 @@ export default {
     this.getUser()
     this.getMarkname()
   },
+  
   mounted() {
     this.getElementStyle()
   },
@@ -365,13 +366,14 @@ export default {
         success: (uploadFileRes) => {
           let backstr = uploadFileRes.data
           console.log(backstr);
+          this.update(backstr, 'imgurl', undefined)
           //修改本地存储
           try {
             uni.setStorageSync('user', {'id': this.uid, 'name': this.myname, 'imgurl': backstr, 'token': token})
           } catch (e) {
             // console.log('数据存储出错');
           }
-          this.update(backstr, 'imgurl', undefined)
+          
         },
         fail: (error) => {}
       })
