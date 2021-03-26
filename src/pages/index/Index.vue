@@ -35,7 +35,7 @@ export default {
     };
   },
   onLoad () {
-    uni.redirectTo({ url: '/pages/index/index' })
+    //uni.redirectTo({ url: '/pages/index/index' })
     //self.location="index.htm"
     // localStorage.setItem('loadedOnce', 'true');
     // document.location.reload(true);
@@ -47,10 +47,6 @@ export default {
     this.join(this.uid)
     this.receiveSocketMsg()
     this.getRequestingFriends()
-    setTimeout(() => {
-      console.log(this.friends);
-      console.log(this.uid);
-    }, 3939)
   },
   onShow () {
     console.log('show');
