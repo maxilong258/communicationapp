@@ -8,9 +8,9 @@
         <div class="title">{{ fname }}</div>
       </div>
       <div slot="right">
-        <!-- <div class="group-img">
-          <image src="~static/img/user/3.png" />
-        </div> -->
+        <div class="group-img" @click="toFriendHome">
+          <image :src="fimgurl" />
+        </div>
       </div>
     </nav-bar-1>
   </div>
@@ -29,16 +29,30 @@ export default {
       default() {
         return ''
       }
+    },
+    fimgurl: {
+      type: String,
+      default() {
+        return ''
+      }
+    },
+    fid: {
+      type: String,
+      default () {
+        return ''
+      }
     }
   },
   methods: {
     // backOne() {
     //   uni.navigateBack({ delta: 1 })
     // }
-    backOne() {
+    backOne () {
       uni.navigateTo({ url: '/pages/index/Index' })
+    },
+    toFriendHome () {
+      uni.navigateTo({ url: '/pages/userhome/UserHome?id=' + this.fid })
     }
-    
   }
 }
 </script>

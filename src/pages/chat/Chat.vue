@@ -1,6 +1,6 @@
 <template>
   <div class="chat-page">
-    <chat-nav :fname="fname"></chat-nav>
+    <chat-nav :fname="fname" :fimgurl="fimgurl" :fid="fid"></chat-nav>
     <scroll-view
       scroll-y="true"
       :scroll-into-view="scrolltoview"
@@ -119,34 +119,24 @@ export default {
     this.getStorages()
     this.getMsg(this.nowpage)
     this.receiveSocketMsg()
-    //this.updateMessagestate()
+    this.updateMessagestate()
     this.nextPage()
   },
  
 
   methods: {
-    // updateMessagestate () {
-    //   request({
-    //     url: '/chat/updatemsg',
-    //     data: {
-    //       uid: this.storagevalue.id,
-    //       fid: this.fid
-    //     },
-    //     method: 'post'
-    //   }).then((res) => {
-    //     console.log(res);
-    //   })
-    //   request({
-    //     url: '/chat/updatemsg',
-    //     data: {
-    //       uid: this.fid,
-    //       fid: this.storagevalue.id,
-    //     },
-    //     method: 'post'
-    //   }).then((res) => {
-    //     console.log(res);
-    //   })
-    // },
+    updateMessagestate () {
+      request({
+        url: '/chat/updatemsg',
+        data: {
+          uid: this.storagevalue.id,
+          fid: this.fid
+        },
+        method: 'post'
+      }).then((res) => {
+        console.log(res);
+      })
+    },
     getStorages() {
       try {
         const value = uni.getStorageSync('user')
@@ -308,7 +298,10 @@ export default {
       this.$nextTick(() => {
         this.scrolltoview = 'msg'+ len
       })
-      if (e.types == 0 || e.types == 3) this.sendSocket(e)
+      if (e.types == 0 || e.types == 3) {
+        this.sendSocket(e)
+        //this.updateMessagestate
+      }
       if (e.types == 1) {
         this.imgmsgs.push(e.message)
         let url = dateHandler.fileName(new Date())

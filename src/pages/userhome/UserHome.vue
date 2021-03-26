@@ -264,6 +264,7 @@ export default {
             icon: 'none',
             duration: 3939
           })
+          this.addFriendAnime()
         } else if (status === 300) {
           uni.navigateTo({ url: '/pages/signin/signin?name=' + this.myname })
         } else if (status === 500) {

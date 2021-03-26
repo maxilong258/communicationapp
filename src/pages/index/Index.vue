@@ -35,6 +35,10 @@ export default {
     };
   },
   onLoad () {
+    uni.redirectTo({ url: '/pages/index/index' })
+    //self.location="index.htm"
+    // localStorage.setItem('loadedOnce', 'true');
+    // document.location.reload(true);
     // let i = 0
     //if(i == 0) location.reload()
     this.friends = []
@@ -43,12 +47,17 @@ export default {
     this.join(this.uid)
     this.receiveSocketMsg()
     this.getRequestingFriends()
-    // setTimeout(() => {
-    //   console.log(this.friends);
-    // }, 3939)
+    setTimeout(() => {
+      console.log(this.friends);
+      console.log(this.uid);
+    }, 3939)
   },
   onShow () {
-   // uni.startPullDownRefresh()
+    console.log('show');
+    //uni.navigateTo({ url: '/pages/index/index' })
+   // this.reload()
+  //  /uni.startPullDownRefresh()
+    //uni.stopPullDownRefresh()
   },
   onPullDownRefresh () {
     location.reload()
@@ -56,11 +65,14 @@ export default {
     this.getStorages()
     this.getFriends()
     this.getRequestingFriends()
-    setTimeout(() => {
-      uni.stopPullDownRefresh()
-    }, 1039)  
+    // setTimeout(() => {
+    //   uni.stopPullDownRefresh()
+    // }, 1039)  
   },
   methods: {
+    reload () {
+      location.reload()
+    },
     join (uid) {
       this.socket.emit('login', uid)
     },

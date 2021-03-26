@@ -100,12 +100,12 @@
             <view class="uni-input">{{ date }}</view>
           </div>
         </div>
-        <div class="row" @click="modify('昵称', fakedataarr.tell, false)" v-if="id === uid">
+        <div class="row" @click="modify('电话', phone, false)" v-if="id === uid">
           <div class="title">电话</div>
           <div class="cont">{{ user.phone }}</div>
           <div class="edit"><image src="~static/img/assets/edit.png" /></div>
         </div>
-        <div class="row" v-if="id !==uid">
+        <div class="row" v-if="id !== uid">
           <div class="title">电话</div>
           <div class="cont">{{ user.phone }}</div>
         </div>
@@ -127,7 +127,7 @@
         </div>
       </div>
       <div class="exitBtn" v-if="id === uid" @click="exit">退出登录</div>
-      <div class="exitBtn" v-if="id !== uid">删除好友</div>
+      <div class="exitBtn" v-if="id !== uid" @click="deleteFriend">删除好友</div>
     </div>
     <!-- -------------------------------------------------------------------------------------------------- -->
     <view
@@ -181,6 +181,7 @@ export default {
       token: '',
       myname: '',
       markname: '',
+      phone: '',
       user: {},
       sexpickerarray: ['男', '女', '未知'],
       sexpickerindex: 0,
@@ -250,13 +251,16 @@ export default {
         let status = res.data.status
         if (status === 200) {
           let result = res.data.result
+          console.log(result);
           this.cropFilePath = this.serverUrl + result.imgurl;
           if (result.explain == undefined) result.explain = '这个人很懒，什么都没有留下'
           if (result.birth == undefined) this.date = '未知'
           else {
-            this.date = formatDate(result.birth, 'yyyy-MM-dd')
+            const birth = new Date(result.birth)
+            this.date = formatDate(birth, 'yyyy-MM-dd')
           }
           if (result.phone == undefined) result.phone = '未知'
+          else this.phone =  result.phone
           if (this.markname.length === 0) this.markname = result.name
           
           this.sexJudge(result.sex);
@@ -274,9 +278,9 @@ export default {
       })
     },
     sexJudge (e) {
-      if (e === 'female') this.index = 1
-      else if (e === 'male') this.index = 0
-      else this.index = 2
+      if (e == 'female') this.sexpickerindex = 1
+      else if (e == 'male') this.sexpickerindex = 0
+      else this.sexpickerindex = 2
      },
     getMarkname () {
       if (this.id !== this.uid) {
@@ -319,6 +323,7 @@ export default {
     },
     bindDateChange: function(e) {
       this.date = e.target.value
+      console.log(this.date);
       this.update(this.date, 'birth', undefined)
     },
     getDate(type) {
@@ -460,6 +465,37 @@ export default {
         this.user[type] = this.modifymaintext
       }
       this.modify()
+    },
+    deleteFriend () {
+      request({
+        url: '/friend/deletefriend',
+        data: {
+          uid: this.uid,
+          fid: this.id
+        },
+        method: 'post'
+      }).then((res) => {
+        if (res.data.status === 200) {
+          uni.showToast({
+            title: '删除成功',
+            icon: 'none',
+            duration: 1039
+          })
+          setTimeout(() => {
+            uni.navigateTo({ url: '/pages/index/Index' })
+          }, 1039);
+        }
+        if (res.data.status === 500) {
+          uni.showToast({
+            title: '服务器出错',
+            icon: 'none',
+            duration: 3939
+          })
+        }
+        if (res.data.status === 300) {
+          uni.navigateTo({ url: '/pages/signin/Signin?name=' + this.myname })
+        }
+      })
     },
     exit () {
       uni.navigateTo({ url: '/pages/signin/Signin' })
