@@ -109,7 +109,7 @@
           <div class="title">电话</div>
           <div class="cont">{{ user.phone }}</div>
         </div>
-        <div class="row" @click="modify('昵称', fakedataarr.mall, true)" v-if="id === uid">
+        <div class="row" @click="modify('昵称', '', true)" v-if="id === uid">
           <div class="title">邮箱</div>
           <div class="cont">{{ user.email }}</div>
           <div class="edit"><image src="~static/img/assets/edit.png" /></div>
@@ -120,7 +120,7 @@
         </div>
       </div>
       <div class="column" v-if="id === uid">
-        <div class="row" @click="modify('昵称', 2333, true)">
+        <div class="row" @click="modify('昵称', '暂不支持', true)">
           <div class="title">密码</div>
           <div class="cont">********</div>
           <div class="edit"><image src="~static/img/assets/edit.png" /></div>

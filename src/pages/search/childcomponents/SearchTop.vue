@@ -20,7 +20,7 @@
 
 <script>
 import SearchTopBar from "components/content/searchtopbar/SearchTopBar"
-import fakedata from 'common/data/fakedata'
+
 import { debounce } from 'common/js/utils'
 import { request } from 'network/request'
 
